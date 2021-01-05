@@ -1,0 +1,67 @@
+[sources]
+
+* Fonctions sur les dossiers : https://pub.phyks.me/sdz/sdz/arcourir-les-dossiers-avec-dirent-h.html
+
+* Creer son propre shell : https://www.geeksforgeeks.org/making-linux-shell-c/
+
+                           https://brennan.io/2015/01/16/write-a-shell-in-c/
+
+                           https://hackernoon.com/building-a-linux-shell-part-iv-h21o3uwl
+
+                           https://sites.cs.ucsb.edu/~manish/discussion/
+
+[signaux]
+
+* Ctrl + C : interrompre (tuer) le processus de premier plan en cours d'exécution dans le terminal. 
+  Cela envoie le signal SIGINT au processus, qui n'est techniquement qu'une demande : la plupart des processus l'honoreront, mais certains peuvent l'ignorer.
+
+* Ctrl + D : fermez le shell bash. Cela envoie un marqueur EOF (fin de fichier) à bash, et bash se ferme lorsqu'il reçoit ce marqueur. (exit)
+
+* Ctrl + \ :
+
+[Man fonctions]
+
+* fork() crée un nouveau processus en dupliquant le processus appelant. Le nouveau processus, que l'on appelle processus fils, est la copie exacte du processus appelant.
+
+* wait() suspend l'exécution du processus appelant jusqu'à ce que l'un de ses fils se termine. 
+
+  waitpid() suspend l'exécution du processus appelant jusqu'à ce que le fils spécifié par son pid ait changé d'état.
+
+  La différence entre wait et wait3 ou waitpid et wait4 est que wait3 et wait4 acceptent un argument supplémentaire. 
+  Il s'agit de la structure rusage, qui renvoie un résumé des ressources système utilisées par le processus enfant.
+
+  signal() un processus peut choisir l'un des comportements suivants à se produire lors de la livraison du signal.
+
+  kill() Envoyer un signal à un processus.
+
+  exit() Terminer normalement un processus.
+
+* getcwd() Obtenir le répertoire de travail courant.
+
+* chdir() Changer le répertoire courant.
+
+* stat() Obtenir l'état d'un fichier.
+
+  lstat() est identique à stat(), sauf que si path est un lien symbolique, il donne l'état du lien lui-même plutôt que celui du fichier visé.
+
+  fstat() est identique à stat(), sauf que le fichier ouvert est pointé par le descripteur fd.
+
+* execve()  exécute  le  programme  correspondant  au  fichier  filename.
+
+* dup() , dup2()  Dupliquer un descripteur de fichier.
+
+* pipe() crée un tube, un canal unidirectionnel de données qui peut être utilisé pour la communication entre processus.
+
+* opendir() ouvre un flux répertoire correspondant au répertoire name, et renvoie un pointeur sur ce flux.
+
+  readdir() renvoie un pointeur sur une structure dirent représentant l'entrée de répertoire suivante dans le flux de répertoire pointé par dirp.
+
+  closedir() close a directory.
+
+
+[procedure]
+
+1) affiche un prompt en attente d'une commande
+2) Get la commande
+3) Decoupe la commande 
+
