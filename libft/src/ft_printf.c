@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ft_printf.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alidy <alidy@student.le-101.fr>            +#+  +:+       +#+        */
+/*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/06 00:53:29 by alidy             #+#    #+#             */
-/*   Updated: 2020/02/14 18:05:55 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/06 14:35:56 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/ft_printf.h"
+#include "../include/libft.h"
 
 int		ft_complete_pointer(t_flags tab, va_list lst)
 {

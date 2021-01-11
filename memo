@@ -10,14 +10,11 @@
 
                            https://sites.cs.ucsb.edu/~manish/discussion/
 
-[signaux]
+                           https://shell.multun.net/
 
-* Ctrl + C : interrompre (tuer) le processus de premier plan en cours d'exécution dans le terminal. 
-  Cela envoie le signal SIGINT au processus, qui n'est techniquement qu'une demande : la plupart des processus l'honoreront, mais certains peuvent l'ignorer.
+                           https://docstore.mik.ua/orelly/unix/upt/ch08_01.htm
 
-* Ctrl + D : fermez le shell bash. Cela envoie un marqueur EOF (fin de fichier) à bash, et bash se ferme lorsqu'il reçoit ce marqueur. (exit)
-
-* Ctrl + \ :
+                           https://www.gnu.org/software/bash/manual/bash.html
 
 [Man fonctions]
 
@@ -61,7 +58,88 @@
 
 [procedure]
 
-1) affiche un prompt en attente d'une commande
-2) Get la commande
-3) Decoupe la commande 
+Shell Operation :
 
+1) lire l'entree de l'utilisateur
+2) Decouper la commande en token en faisant attention aux quotes 
+Parses the tokens into simple and compound commands (see Shell Commands).
+Performs the various shell expansions (see Shell Expansions), breaking the expanded tokens into lists of filenames (see Filename Expansion) and commands and arguments.
+Performs any necessary redirections (see Redirections) and removes the redirection operators and their operands from the argument list.
+Executes the command (see Executing Commands).
+Optionally waits for the command to complete and collects its exit status (see Exit Status).
+
+
+[quotes]
+
+simple :
+* Le fait de placer les caractères entre guillemets simples préserve la valeur littérale de chaque caractère entre les guillemets. 
+* Un guillemet simple n'apparait pas entre deux guillemets simples, même s'il est précédé de \
+
+
+[;]
+
+Commands separated by a ‘;’ are executed sequentially; the shell waits for each command to terminate in turn. The return status is the exit status of the last command executed.
+
+[pipe]
+
+The output of each command in the pipeline is connected via a pipe to the input of the next command. That is, each command reads the previous command’s output. This connection is performed before any redirections specified by the command.
+
+If the pipeline is not executed asynchronously (see Lists), the shell waits for all commands in the pipeline to complete.
+Each command in a pipeline is executed in its own subshell, which is a separate process (see Command Execution Environment). 
+If the lastpipe option is enabled using the shopt builtin (see The Shopt Builtin), the last element of a pipeline may be run by the shell process.
+The exit status of a pipeline is the exit status of the last command in the pipeline, unless the pipefail option is enabled (see The Set Builtin). 
+If pipefail is enabled, the pipeline’s return status is the value of the last (rightmost) command to exit with a non-zero status, or zero if all commands exit successfully. 
+If the reserved word ‘!’ precedes the pipeline, the exit status is the logical negation of the exit status as described above.
+The shell waits for all commands in the pipeline to terminate before returning a value
+
+https://stackoverflow.com/questions/17630247/coding-multiple-pipe-in-c
+
+https://gist.github.com/iomonad/a66f6e9cfb935dc12c0244c1e48db5c8
+
+
+[$?] 
+
+Expands to the exit status of the most recently executed foreground pipeline
+
+[redirection]
+
+bashn'autorise qu'une seule redirection par descripteur de fichier. 
+Si plusieurs redirections sont fournies, comme dans votre exemple, elles sont traitées de gauche à droite, la dernière étant la seule à prendre effet.
+(Notez cependant que chaque fichier sera toujours créé, ou tronqué s'il existe déjà; les autres ne seront tout simplement pas utilisés par le processus.)
+
+https://sites.cs.ucsb.edu/~manish/discussion/week2.pdf
+
+https://brandonwamboldt.ca/how-bash-redirection-works-under-the-hood-1512/
+
+[signaux]
+
+* Ctrl + C : interrompre (tuer) le processus de premier plan en cours d'exécution dans le terminal. 
+  Cela envoie le signal SIGINT au processus, qui n'est techniquement qu'une demande : la plupart des processus l'honoreront, mais certains peuvent l'ignorer.
+
+* Ctrl + D : fermez le shell bash. Cela envoie un marqueur EOF (fin de fichier) à bash, et bash se ferme lorsqu'il reçoit ce marqueur. (exit)
+
+* Ctrl + \ :
+
+When Bash is interactive, in the absence of any traps, it ignores SIGTERM (so that ‘kill 0’ does not kill an interactive shell), and SIGINT is caught and handled (so that the wait builtin is interruptible). When Bash receives a SIGINT, it breaks out of any executing loops. In all cases, Bash ignores SIGQUIT. If job control is in effect (see Job Control), Bash ignores SIGTTIN, SIGTTOU, and SIGTSTP.
+
+Non-builtin commands started by Bash have signal handlers set to the values inherited by the shell from its parent. When job control is not in effect, asynchronous commands ignore SIGINT and SIGQUIT in addition to these inherited handlers. Commands run as a result of command substitution ignore the keyboard-generated job control signals SIGTTIN, SIGTTOU, and SIGTSTP.
+
+The shell exits by default upon receipt of a SIGHUP. Before exiting, an interactive shell resends the SIGHUP to all jobs, running or stopped. Stopped jobs are sent SIGCONT to ensure that they receive the SIGHUP. To prevent the shell from sending the SIGHUP signal to a particular job, it should be removed from the jobs table with the disown builtin (see Job Control Builtins) or marked to not receive SIGHUP using disown -h.
+
+If the huponexit shell option has been set with shopt (see The Shopt Builtin), Bash sends a SIGHUP to all jobs when an interactive login shell exits.
+
+If Bash is waiting for a command to complete and receives a signal for which a trap has been set, the trap will not be executed until the command completes. When Bash is waiting for an asynchronous command via the wait builtin, the reception of a signal for which a trap has been set will cause the wait builtin to return immediately with an exit status greater than 128, immediately after which the trap is executed.
+
+[exit status]
+
+The exit status of an executed command is the value returned by the waitpid system call or equivalent function. Exit statuses fall between 0 and 255, though, as explained below, the shell may use values above 125 specially. Exit statuses from shell builtins and compound commands are also limited to this range. Under certain circumstances, the shell will use special values to indicate specific failure modes.
+
+For the shell’s purposes, a command which exits with a zero exit status has succeeded. A non-zero exit status indicates failure. This seemingly counter-intuitive scheme is used so there is one well-defined way to indicate success and a variety of ways to indicate various failure modes. When a command terminates on a fatal signal whose number is N, Bash uses the value 128+N as the exit status.
+
+If a command is not found, the child process created to execute it returns a status of 127. If a command is found but is not executable, the return status is 126.
+
+If a command fails because of an error during expansion or redirection, the exit status is greater than zero.
+
+The exit status is used by the Bash conditional commands (see Conditional Constructs) and some of the list constructs (see Lists).
+
+All of the Bash builtins return an exit status of zero if they succeed and a non-zero status on failure, so they may be used by the conditional and list constructs. All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments

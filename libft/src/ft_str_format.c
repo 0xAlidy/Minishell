@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ft_str_format.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alidy <alidy@student.le-101.fr>            +#+  +:+       +#+        */
+/*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/10 02:49:43 by alidy             #+#    #+#             */
-/*   Updated: 2020/02/14 18:05:50 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/06 14:35:17 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/ft_printf.h"
+#include "../include/libft.h"
 
 int		ft_char_format(t_flags tab, char c)
 {

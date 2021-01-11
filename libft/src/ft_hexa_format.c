@@ -6,11 +6,11 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/13 03:57:41 by alidy             #+#    #+#             */
-/*   Updated: 2020/09/02 17:14:12 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/06 14:36:40 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/ft_printf.h"
+#include "../include/libft.h"
 
 void	ft_test_hexa(char **nb, int precision, int *size)
 {

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/11 10:54:17 by alidy             #+#    #+#             */
+/*   Updated: 2021/01/11 11:38:59 by alidy            ###   ########lyon.fr   */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
 
 char    *ms_current_folder(void)
@@ -21,7 +33,7 @@ char    *ms_current_folder(void)
         res = ft_strdup("/");
     else
 	    res = ft_substr(path, i + 1, len - i);
-	free(path);	
+	free(path);
 	return (res);
 }
 
@@ -45,31 +57,24 @@ void    signal_handler(int signum)
 
 int main(int argc, char **argv, char **env)
 {
-    // set les signaux (ctrl-c ctrl-d ctrl-/)
-     int res;
-    char *line;
-    (void) argc;
-    (void) argv;
+    int res;
+    char *input;
+    t_cmd *commands;
     errno = 0;
-    if(signal(SIGINT, signal_handler) == SIG_ERR) // ctrl-c ne me fait pas quitter minishell
-    {
-        strerror(errno);
-        exit(EXIT_FAILURE);
-    }
-    if(signal(SIGQUIT, SIG_IGN) == SIG_ERR) // ctrl-\ ne me fait pas quitter minishell
-    {
-        strerror(errno);
-        exit(EXIT_FAILURE);
-    }
+    (void)argc;
+    (void)argv;
+    signal(SIGINT, signal_handler); // ctrl-c ne me fait pas quitter minishell
+    signal(SIGQUIT, SIG_IGN); // ctrl-\ ne me fait pas quitter minishell
     while(1)
     {
         prompt();
-        res = get_next_line(0, &line);
-        if (res == 0 && !strcmp(line, "")) // ctrl-D
+        res = get_next_line(0, &input); // exit si ctrl-D a integrer dans le gnl
+        commands = tokenizer_input(input);
+        if (res == 0 && !strcmp(input, ""))
             exit(EXIT_SUCCESS);
-        else if (!strcmp(line, "exit"))
+        else if (!strcmp(input, "exit"))
             exit(EXIT_SUCCESS);
-        else if (!strcmp(line, "env"))
+        else if (!strcmp(input, "env"))
         {
             int i = 0;
             while(env[i])
@@ -78,10 +83,7 @@ int main(int argc, char **argv, char **env)
                 i++;
             }
         }
-        ft_printf("commande: %s$", line);
-        ft_printf("\n");
-        // affiche un prompt
-        // parse la commande 
+        
         // si built-in lancer mon ficher
         // sinon fork+execve avec recherche de la commande dans les fichiers $PATH
     }

@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ft_int_format.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alidy <alidy@student.le-101.fr>            +#+  +:+       +#+        */
+/*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/07 03:40:07 by alidy             #+#    #+#             */
-/*   Updated: 2020/02/14 18:06:04 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/06 14:36:38 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/ft_printf.h"
+#include "../include/libft.h"
 
 void	ft_write_flags(int zero, int c, int flag, int nb)
 {
