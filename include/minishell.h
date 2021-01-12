@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/05 21:59:37 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/11 14:07:47 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/12 13:12:24 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,27 +27,62 @@
 # include <string.h>
 # include <limits.h>
 
+/* Liste des arguments de ma commande */
+
+typedef struct      s_arg  
+{
+    char            *content;
+    struct s_arg    *next;
+}                   m_arg;
+
+/* Variables pour faire le parsing des commands */
+
+typedef struct      s_parse
+{
+    int     args;
+    int     output;
+    int     save;
+    int     in_quote;
+    int     in_input;
+    int     in_output;
+    int     in_arg;
+    int     in_slash;
+    int     is_double;
+}                   m_parse;
+
+/* Liste des fichiers d'output */
+
+typedef struct      s_output
+{
+    char            *content;
+    int             is_double;
+    struct s_out    *next;
+}                   m_output;
+
+/* Liste des commandes entrees par l'utilisateur */
+
 typedef struct		s_cmd
 {
-    char            **args; // arguments de ma commande
-    char            *input; // fichier d'entree
-    char            **output; // tableau des fichiers de sorties
-    int             db_redi; // '>' ? '>>'
-    int             pipe; // le separateur est il un pipe ?
-	struct s_cmd	*next; // prochaine commande
-}					t_cmd;
+    m_arg           *args;
+    char            *input;
+    m_output        *output;
+    int             pipe;
+	struct s_cmd	*next;
+}                   m_cmd;
+
+/* Liste des variables d'environnement */
 
 typedef struct      s_env
 {
     char            *name;
     char            *content;
-    struct t_cmd   *next;
-}                   t_env;
+    struct s_env    *next;
+}                   m_env;
 
 char    *ms_get_env(char **env, char *key);
 char    *ms_current_folder();
-t_cmd  *tokenizer_input(char *line);
-int     parsing_command(char *line, int i, t_cmd *command);
+m_cmd   *set_commands(char *line);
+int     set_command(char *line, int i, m_cmd *command);
 
 
 #endif

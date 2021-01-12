@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/11 14:36:18 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/12 13:55:13 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,109 +57,179 @@
 
 // GERER LE CAS echo >  > ok        ne compter qu'un fichier  echo > mdr salut =====> salut mdr
 
-t_cmd  *new_command()
+
+/*
+void handler_quotes(char *line, int *i, m_parse *parse, m_cmd *command)
 {
-    t_cmd *command;
+    int save;
+    int is_s;
 
-    if (!(command = malloc(sizeof(t_cmd))))
-        exit(EXIT_FAILURE);
-    command->db_redi = FALSE;
-    command->pipe = FALSE;
-    return (command);
-}
-
-int     parsing_command(char *line, int i, t_cmd *command) // check erreurs de quotes et initialise les tableaux
-{
-    int     squote;
-    int     dquote;
-    int     word;
-    int     args;
-    int     output;
-
-    squote = FALSE;
-    dquote = FALSE;
-    word = FALSE;
-    args = 0;
-    output = 0;
-    while (line[i] && (squote == TRUE || dquote == TRUE || (line[i] != '|' && line[i] != ';')))
+    save = *i;
+    is_s = (line[*i] == '\'') ? TRUE : FALSE;
+    (*i)++;
+    while (line[*i] && ((is_s == TRUE && line[*i] != '\'') || (is_s == FALSE && line[*i] != '"')))
     {
-        if (squote == TRUE || dquote == TRUE)
-        {
-            if (line[i] == '\'')
-                squote = FALSE;           
-            else if (line[i] == '"' && line[i - 1] != '\\')
-                dquote = FALSE;
-        }
-        else if (line[i] == '\'' && (i == 0 || line[i - 1] != '\\'))
-                squote = TRUE;           
-        else if (line[i] == '"' && (i == 0 || line[i - 1] != '\\'))
-                dquote = TRUE;
-        else if (line[i] == '>')
-        {
-            if (line[i + 1] == '>')
-            {
-                command->db_redi = TRUE;
-                i++;
-            }
-            else
-                command->db_redi = FALSE;
-            output++;
-        }
-        else if (line[i] == ' ')
-        {
-            if (word == TRUE)
-                args++;
-            word = FALSE;
-        }
-        else
-            word = TRUE;
-        i++;
+        if (is_s == FALSE && line[*i] == '\\')
+            (*i)++;
+        (*i)++;
     }
-    if (word == TRUE)
-        args++;
-    if (squote == TRUE || dquote == TRUE) // Nombre de quotes impaires
+    if (!line[*i]) // Nombre de quotes impaires
     {
         ft_printf("Quotes incomplets, multiline off");
         exit(EXIT_FAILURE);
     }
-    ft_printf("%d\n", command->pipe);
+    if (*i - save > 1)
+        *in_arg = TRUE;
+}
+
+void    handler_slash(char *line, int *i, m_parse *parse)
+{
+    if (parse->in_slash == FALSE)
+    {
+        if (!ft_isprint(line[*i + 1]))
+        {
+            ft_printf("Pas de multiligne"); //ERREUR
+            exit(EXIT_FAILURE);
+        }
+        parse->in_slash = TRUE;
+        (*i)++;
+    }
+}
+
+m_parse     init_parse()
+{
+    m_parse parse;
+
+    parse.save = 0;
+    parse.in_slash = FALSE;
+    parse.in_input = FALSE;
+    parse.in_arg = FALSE;
+    parse.in_output = FALSE;
+    parse.in_quote = FALSE;
+    parse.is_double = FALSE;
+    return (parse);
+}
+
+int    set_command(char *line, int i, m_cmd *command)
+{
+    m_parse parse;
+
+    parse = init_parse();
+    while (line[i] && line[i] != '|' && line[i] != ';')
+    {
+        if (line[i] == '\\')
+            handler_slash(line, &i, &parse); 
+        if (parse.in_slash == FALSE && (line[i] == '\'' || line[i] == '"'))
+            handler_quotes(line, &i, &parse, command);     
+        else if (parse.in_slash == FALSE && (line[i] == '>' || line[i] == '<'))
+        {
+            if (parse.in_output == TRUE || parse.in_input == TRUE) // erreur de type echo < <
+            {
+                ft_printf("Erreur: redirection");
+                exit(EXIT_FAILURE);
+            }
+            if (line[i] == '>')
+            {
+                parse.in_output = TRUE;
+                if (line[i + 1] == '>')
+                {
+                    parse.is_double = TRUE;
+                    i++;
+                }
+                else
+                    parse.is_double = FALSE;
+            }
+            else
+                parse.in_input = TRUE; 
+        }
+        else if (line[i] == ' ')
+        {
+            if (parse.in_arg == TRUE)
+            {
+                if (parse.in_output == TRUE)
+                {
+                    add_output(command); // ajoute une sortie a la liste commande->output (content = chaine de save a i, is_double = parse.is_double)
+                    parse.in_output = FALSE;
+                }
+                else if (parse.in_input == TRUE)
+                {
+                    parse.in_input = FALSE;
+                    add_input(command); // modifie la valeure de commande->input (content = chaine de save a i)
+                }
+                else
+                    add_arg(command); // ajouter un argument a ma liste (content = chaine de save a i)
+                parse.in_arg = FALSE;
+            }
+        }
+        else
+        {
+            if (parse.in_arg == FALSE)
+            {
+                parse.save = i;
+                parse.in_arg = TRUE;
+            }
+        }
+        i++;
+        parse.in_slash = FALSE;
+    }
+    if (parse.in_arg == TRUE)
+    {
+        if (parse.in_output == TRUE)
+            parse.output++;
+        else if (parse.in_input == FALSE)
+            parse.args++;
+    }
     if (line[i] == '|')
             command->pipe = TRUE;
-    ft_printf("%d", command->pipe);
     if (!(command->args = malloc(args * sizeof(char))))
         exit(EXIT_FAILURE);
     if (!(command->output = malloc(output * sizeof(char))))
         exit(EXIT_FAILURE);
-    ft_printf("nb_args: %d  nb_output: %d  double: %d  pipe: %d",args , output, command->db_redi, command->pipe);
-    return (i);
+    return(i);
+}
+*/
+m_cmd  *new_command()
+{
+    m_cmd *command;
+
+    if (!(command = malloc(sizeof(m_cmd))))
+        exit(EXIT_FAILURE);
+    command->pipe = FALSE;
+    command->next = 0;
+    return (command);
 }
 
-t_cmd  *tokenizer_input(char *line)
+void    add_back_command(m_cmd *commands, m_cmd *command) // a regler
+{
+    m_cmd   *temp;
+
+    temp = commands;
+    if (!commands)
+        commands = command;
+    else
+    {
+        while (temp->next)
+            temp = temp->next;
+        temp->next = command;
+    }
+}
+
+m_cmd  *set_commands(char *line)
 {
     int     i;
-    t_cmd   *commands;
-    t_cmd   *command;
+    m_cmd   *commands;
+    m_cmd   *command;
 
     i = 0;
+    commands = 0;
     command = new_command();
-    commands = command;
     while (line[i])
     {
         i = parsing_command(line, i, command);
-        exit(1);
-        while (line[i] && line[i] != '|' && line[i] != ';') // complete les commands
-        {
-            if (line[i] == '<' || line[i] == '>')
-            {
-                
-                
-            }
-            i++;
-        }
-        //add_back_command(commands, command);
+        add_back_command(commands, command);
         command = new_command();
-        i++;
+        if (line[i])
+            i++;
     }
     return (commands);
 }
-

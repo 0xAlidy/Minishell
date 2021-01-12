@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 10:54:17 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/11 11:38:59 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/12 12:57:49 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ int main(int argc, char **argv, char **env)
 {
     int res;
     char *input;
-    t_cmd *commands;
+    m_cmd *commands;
     errno = 0;
     (void)argc;
     (void)argv;
@@ -69,7 +69,7 @@ int main(int argc, char **argv, char **env)
     {
         prompt();
         res = get_next_line(0, &input); // exit si ctrl-D a integrer dans le gnl
-        commands = tokenizer_input(input);
+        commands = set_commands(input);
         if (res == 0 && !strcmp(input, ""))
             exit(EXIT_SUCCESS);
         else if (!strcmp(input, "exit"))
@@ -83,7 +83,6 @@ int main(int argc, char **argv, char **env)
                 i++;
             }
         }
-        
         // si built-in lancer mon ficher
         // sinon fork+execve avec recherche de la commande dans les fichiers $PATH
     }
