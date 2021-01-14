@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/05 21:59:37 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/12 13:12:24 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/14 14:11:12 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,12 +42,16 @@ typedef struct      s_parse
     int     args;
     int     output;
     int     save;
-    int     in_quote;
+    int     start_slash;
+    int     in_squote;
+    int     in_dquote;
     int     in_input;
     int     in_output;
     int     in_arg;
     int     in_slash;
+    int     in_dollar;
     int     is_double;
+    char    *content;
 }                   m_parse;
 
 /* Liste des fichiers d'output */
@@ -82,7 +86,7 @@ typedef struct      s_env
 char    *ms_get_env(char **env, char *key);
 char    *ms_current_folder();
 m_cmd   *set_commands(char *line);
-int     set_command(char *line, int i, m_cmd *command);
+void     set_command(char *line, int i, m_cmd *command);
 
 
 #endif

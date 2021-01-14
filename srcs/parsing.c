@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/12 13:55:13 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/14 14:13:43 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@
  Sans quotes :
 
  \ => efface la barre et ne prete pas attention au charactere d'apres
- $ => remplace par la valeur env sauf s' il n'y a rien apres 
+ $ => remplace par la valeur env sauf s' il n'y a rien apres , supprime le $ s'il y a des quotes apres
 
  Simple quotes : ecrit exactement ce qu'il y a dedans
  
@@ -57,36 +57,36 @@
 
 // GERER LE CAS echo >  > ok        ne compter qu'un fichier  echo > mdr salut =====> salut mdr
 
-
-/*
-void handler_quotes(char *line, int *i, m_parse *parse, m_cmd *command)
+m_parse     init_parse()
 {
-    int save;
-    int is_s;
+    m_parse parse;
 
-    save = *i;
-    is_s = (line[*i] == '\'') ? TRUE : FALSE;
-    (*i)++;
-    while (line[*i] && ((is_s == TRUE && line[*i] != '\'') || (is_s == FALSE && line[*i] != '"')))
-    {
-        if (is_s == FALSE && line[*i] == '\\')
-            (*i)++;
-        (*i)++;
-    }
-    if (!line[*i]) // Nombre de quotes impaires
-    {
-        ft_printf("Quotes incomplets, multiline off");
-        exit(EXIT_FAILURE);
-    }
-    if (*i - save > 1)
-        *in_arg = TRUE;
+    parse.save = 0;
+    parse.content = 0;
+    parse.start_slash = FALSE;
+    parse.in_slash = FALSE;
+    parse.in_input = FALSE;
+    parse.in_arg = FALSE;
+    parse.in_output = FALSE;
+    parse.in_squote = FALSE;
+    parse.in_dquote = FALSE;
+    parse.in_dollar = FALSE;
+    parse.is_double = FALSE;
+    return (parse);
 }
 
-void    handler_slash(char *line, int *i, m_parse *parse)
+int		is_char_printable(int c)
 {
-    if (parse->in_slash == FALSE)
+	if (c >= 33 && c <= 126)
+		return (1);
+	return (0);
+}
+
+void    set_flag_slash(char *line, int *i, m_parse *parse)
+{
+    if (parse->in_slash == FALSE && parse->in_squote == FALSE && parse->in_dquote == FALSE)
     {
-        if (!ft_isprint(line[*i + 1]))
+        if (!is_char_printable(line[*i + 1]))
         {
             ft_printf("Pas de multiligne"); //ERREUR
             exit(EXIT_FAILURE);
@@ -96,31 +96,111 @@ void    handler_slash(char *line, int *i, m_parse *parse)
     }
 }
 
-m_parse     init_parse()
+void     set_flag_quotes(char *line, int i, m_parse *parse)
 {
-    m_parse parse;
-
-    parse.save = 0;
-    parse.in_slash = FALSE;
-    parse.in_input = FALSE;
-    parse.in_arg = FALSE;
-    parse.in_output = FALSE;
-    parse.in_quote = FALSE;
-    parse.is_double = FALSE;
-    return (parse);
+    if (line[i] == '"') 
+    {
+        if (parse->in_squote == TRUE || parse->in_slash == TRUE)
+            return;
+        ft_printf("i : %d\n",i);
+        if (parse->in_dquote == FALSE)
+        {
+            parse->in_dquote = TRUE;
+            if (parse->in_arg == FALSE)
+                parse->save = i;
+            parse->in_arg = TRUE;
+        }
+        else
+            parse->in_dquote = FALSE; 
+    }   
+    else
+    {
+        if (parse->in_dquote == TRUE || (parse->in_slash == TRUE && parse->in_squote == FALSE))
+            return;
+        if (parse->in_squote == FALSE)
+        {
+            parse->in_squote = TRUE;
+            if (parse->in_arg == FALSE)
+                parse->save = i;
+            parse->in_arg = TRUE;
+        }
+        else
+            parse->in_squote = FALSE; 
+    }
 }
 
-int    set_command(char *line, int i, m_cmd *command)
+m_output *new_output(char *output, int is_double)
+{
+    m_output *new;
+
+    if (!(malloc(sizeof(m_output))))
+        exit(EXIT_FAILURE);
+    new->content = output;
+    new->is_double = is_double;
+    new->next = 0;
+    return (new);
+}
+
+m_arg   *new_arg(char *arg)
+{
+    m_arg *new;
+
+    if (!(malloc(sizeof(m_arg))))
+        exit(EXIT_FAILURE);
+    new->content = arg;
+    new->next = 0;
+    return (new);
+}
+
+void    add_output(char *output, int is_double, m_cmd *lst)
+{
+    m_output *new;
+    m_output *temp;
+
+    new = new_output(output, is_double);
+    temp = lst;
+    if (lst)
+        lst = new;
+    else
+    {
+        while (temp->next)
+            temp = temp->next;
+        temp->next = new;
+    }
+}
+
+char    *add_arg(char *content, m_cmd *lst)
+{
+    m_arg *new;
+    m_arg *temp;
+
+    new = new_arg(content);
+    temp = lst;
+    if (!lst)
+        lst = new;
+    else
+    {
+        while (temp->next)
+            temp = temp->next;
+        temp->next = new;
+    }
+}
+
+
+void    set_command(char *line, int i, m_cmd *command)
 {
     m_parse parse;
 
     parse = init_parse();
+    // content qui dup et join au fur et a mesure
     while (line[i] && line[i] != '|' && line[i] != ';')
     {
         if (line[i] == '\\')
-            handler_slash(line, &i, &parse); 
-        if (parse.in_slash == FALSE && (line[i] == '\'' || line[i] == '"'))
-            handler_quotes(line, &i, &parse, command);     
+            set_flag_slash(line, &i, &parse);
+        if (line[i] == '\'' || line[i] == '"')
+            set_flag_quotes(line, i, &parse);
+        if (parse.in_squote == TRUE || parse.in_dquote == TRUE)
+            ;
         else if (parse.in_slash == FALSE && (line[i] == '>' || line[i] == '<'))
         {
             if (parse.in_output == TRUE || parse.in_input == TRUE) // erreur de type echo < <
@@ -146,25 +226,30 @@ int    set_command(char *line, int i, m_cmd *command)
         {
             if (parse.in_arg == TRUE)
             {
+
+                ft_printf("[1] save: %d i: %d %.*s\n", parse.save, i ,i - parse.save, line + parse.save);
                 if (parse.in_output == TRUE)
                 {
-                    add_output(command); // ajoute une sortie a la liste commande->output (content = chaine de save a i, is_double = parse.is_double)
+                    add_output(content, parse.is_double, command->output); // ajoute une sortie a la liste commande->output (content = chaine de save a i, is_double = parse.is_double)
                     parse.in_output = FALSE;
                 }
                 else if (parse.in_input == TRUE)
                 {
                     parse.in_input = FALSE;
-                    add_input(command); // modifie la valeure de commande->input (content = chaine de save a i)
+                    command->input = content; // modifie la valeure de commande->input (content = chaine de save a i)
                 }
                 else
-                    add_arg(command); // ajouter un argument a ma liste (content = chaine de save a i)
+                    add_arg(content, command->args); // ajouter un argument a ma liste (content = chaine de save a i)
                 parse.in_arg = FALSE;
+                parse.start_slash = FALSE;
             }
         }
         else
         {
             if (parse.in_arg == FALSE)
             {
+                if (parse.in_slash == TRUE)
+                    parse.start_slash = TRUE;
                 parse.save = i;
                 parse.in_arg = TRUE;
             }
@@ -174,20 +259,36 @@ int    set_command(char *line, int i, m_cmd *command)
     }
     if (parse.in_arg == TRUE)
     {
-        if (parse.in_output == TRUE)
-            parse.output++;
-        else if (parse.in_input == FALSE)
-            parse.args++;
+        if (parse.in_dquote || parse.in_squote)
+        {
+            ft_printf("Error: quotes");
+            exit(EXIT_FAILURE);
+        }
+        if (parse.in_arg == TRUE)
+        {
+            ft_printf("[1] save: %d i: %d %.*s\n", parse.save, i ,i - parse.save, line + parse.save);
+            content = add_arg(line, i, &parse);
+            if (parse.in_output == TRUE)
+            {
+                add_output(content, parse.is_double, command->output); // ajoute une sortie a la liste commande->output (content = chaine de save a i, is_double = parse.is_double)
+                parse.in_output = FALSE;
+            }
+            else if (parse.in_input == TRUE)
+            {
+                parse.in_input = FALSE;
+                command->input = content; // modifie la valeure de commande->input (content = chaine de save a i)
+            }
+            else
+                add_arg(content, command->args); // ajouter un argument a ma liste (content = chaine de save a i)
+            parse.in_arg = FALSE;
+            parse.start_slash = FALSE;
+        }
     }
     if (line[i] == '|')
             command->pipe = TRUE;
-    if (!(command->args = malloc(args * sizeof(char))))
-        exit(EXIT_FAILURE);
-    if (!(command->output = malloc(output * sizeof(char))))
-        exit(EXIT_FAILURE);
-    return(i);
+    exit(1);
 }
-*/
+
 m_cmd  *new_command()
 {
     m_cmd *command;
@@ -199,13 +300,13 @@ m_cmd  *new_command()
     return (command);
 }
 
-void    add_back_command(m_cmd *commands, m_cmd *command) // a regler
+void    add_back_command(m_cmd **commands, m_cmd *command) // a regler
 {
     m_cmd   *temp;
 
-    temp = commands;
-    if (!commands)
-        commands = command;
+    temp = *commands;
+    if (!temp)
+        *commands = command;
     else
     {
         while (temp->next)
@@ -225,8 +326,8 @@ m_cmd  *set_commands(char *line)
     command = new_command();
     while (line[i])
     {
-        i = parsing_command(line, i, command);
-        add_back_command(commands, command);
+        set_command(line, i, command);
+        add_back_command(&commands, command);
         command = new_command();
         if (line[i])
             i++;
