@@ -54,7 +54,7 @@ char        *search_env(char *str, m_env **lst)
         {
             if (!temp)
                 return (0);
-            if (ft_strncmp(str, temp->name,ft_strlen(str)))
+            if (!ft_strncmp(str, temp->name,ft_strlen(str)))
                 return (ft_strdup(temp->content)); 
             temp = temp->next;
         }
