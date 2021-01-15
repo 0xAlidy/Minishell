@@ -6,7 +6,7 @@
 #    By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/02 17:12:28 by alidy             #+#    #+#              #
-#    Updated: 2021/01/11 14:08:44 by alidy            ###   ########lyon.fr    #
+#    Updated: 2021/01/15 10:35:47 by alidy            ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,6 +20,7 @@ SRC_PATH		=		srcs
 SRCS_NAME		=		minishell.c \
 						pwd.c 		\
 						parsing.c 	\
+						env.c 		\
 						
 OBJS			=		${SRCS:.c=.o}
 

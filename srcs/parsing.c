@@ -6,14 +6,12 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/14 14:13:43 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/15 12:39:54 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 /*
- metacharactere : "‘|’, ‘&’, ‘;’, ‘(’, ‘)’, ‘<’, or ‘>’"
-
 
  echo "salut mdr $path" 'test'| cat -e > text.txt
 
@@ -47,15 +45,14 @@
  
  $ => remplace par la valeur env sauf s' il n'y a rien apres
 
- \ => desactive " et $, utilise le principe sans quotes qund il est suivi de \ ou seul
+ \ => desactive " et $ et \ sinon garde le \
 
 
 
  " et \ impaires => message erreur multiligne 
 */
 
-
-// GERER LE CAS echo >  > ok        ne compter qu'un fichier  echo > mdr salut =====> salut mdr
+// GERER LE CAS echo >  > ok  ne compter qu'un fichier  echo > mdr salut =====> salut mdr
 
 m_parse     init_parse()
 {
@@ -63,10 +60,7 @@ m_parse     init_parse()
 
     parse.save = 0;
     parse.content = 0;
-    parse.start_slash = FALSE;
-    parse.in_slash = FALSE;
     parse.in_input = FALSE;
-    parse.in_arg = FALSE;
     parse.in_output = FALSE;
     parse.in_squote = FALSE;
     parse.in_dquote = FALSE;
@@ -75,65 +69,11 @@ m_parse     init_parse()
     return (parse);
 }
 
-int		is_char_printable(int c)
-{
-	if (c >= 33 && c <= 126)
-		return (1);
-	return (0);
-}
-
-void    set_flag_slash(char *line, int *i, m_parse *parse)
-{
-    if (parse->in_slash == FALSE && parse->in_squote == FALSE && parse->in_dquote == FALSE)
-    {
-        if (!is_char_printable(line[*i + 1]))
-        {
-            ft_printf("Pas de multiligne"); //ERREUR
-            exit(EXIT_FAILURE);
-        }
-        parse->in_slash = TRUE;
-        (*i)++;
-    }
-}
-
-void     set_flag_quotes(char *line, int i, m_parse *parse)
-{
-    if (line[i] == '"') 
-    {
-        if (parse->in_squote == TRUE || parse->in_slash == TRUE)
-            return;
-        ft_printf("i : %d\n",i);
-        if (parse->in_dquote == FALSE)
-        {
-            parse->in_dquote = TRUE;
-            if (parse->in_arg == FALSE)
-                parse->save = i;
-            parse->in_arg = TRUE;
-        }
-        else
-            parse->in_dquote = FALSE; 
-    }   
-    else
-    {
-        if (parse->in_dquote == TRUE || (parse->in_slash == TRUE && parse->in_squote == FALSE))
-            return;
-        if (parse->in_squote == FALSE)
-        {
-            parse->in_squote = TRUE;
-            if (parse->in_arg == FALSE)
-                parse->save = i;
-            parse->in_arg = TRUE;
-        }
-        else
-            parse->in_squote = FALSE; 
-    }
-}
-
 m_output *new_output(char *output, int is_double)
 {
     m_output *new;
 
-    if (!(malloc(sizeof(m_output))))
+    if (!(new = malloc(sizeof(m_output))))
         exit(EXIT_FAILURE);
     new->content = output;
     new->is_double = is_double;
@@ -145,22 +85,80 @@ m_arg   *new_arg(char *arg)
 {
     m_arg *new;
 
-    if (!(malloc(sizeof(m_arg))))
+    if (!(new = malloc(sizeof(m_arg))))
         exit(EXIT_FAILURE);
     new->content = arg;
     new->next = 0;
     return (new);
 }
 
-void    add_output(char *output, int is_double, m_cmd *lst)
+m_cmd  *new_command()
+{
+    m_cmd *command;
+
+    if (!(command = malloc(sizeof(m_cmd))))
+        exit(EXIT_FAILURE);
+    command->pipe = FALSE;
+    command->next = 0;
+    return (command);
+}
+
+void    debug_struct(m_cmd **cmds)
+{
+    m_cmd    *temp;
+    m_output *out;
+    m_arg   *args;
+
+    temp = *cmds;
+    if (!*cmds)
+        return;
+    while (temp->next)
+    {
+        out = temp->output;
+        args = temp->args;
+        while (args->next)
+        {
+            ft_printf("args : %s -> ", args->content);
+            args = args->next;
+        }
+        ft_printf("\n");
+        while (out->next)
+        {
+            ft_printf("out : %s | double = %d -> ", out->content, out->is_double);
+            out = out->next;
+        }
+        ft_printf("\n");
+        ft_printf("input: %s",temp->input);
+        ft_printf("\n");
+        ft_printf("pipe: %d",temp->pipe);
+        temp = temp->next;
+    }   
+}
+
+void    add_command(m_cmd **commands, m_cmd *command)
+{
+    m_cmd   *temp;
+
+    temp = *commands;
+    if (!*commands)
+        *commands = command;
+    else
+    {
+        while (temp->next)
+            temp = temp->next;
+        temp->next = command;
+    }
+}
+
+void    add_output(char *output, int is_double, m_output **lst)
 {
     m_output *new;
     m_output *temp;
 
     new = new_output(output, is_double);
-    temp = lst;
-    if (lst)
-        lst = new;
+    temp = *lst;
+    if (*lst)
+        *lst = new;
     else
     {
         while (temp->next)
@@ -169,15 +167,15 @@ void    add_output(char *output, int is_double, m_cmd *lst)
     }
 }
 
-char    *add_arg(char *content, m_cmd *lst)
+void    add_arg(char *content, m_arg **lst)
 {
     m_arg *new;
     m_arg *temp;
 
     new = new_arg(content);
-    temp = lst;
-    if (!lst)
-        lst = new;
+    temp = *lst;
+    if (!*lst)
+        *lst = new;
     else
     {
         while (temp->next)
@@ -186,22 +184,119 @@ char    *add_arg(char *content, m_cmd *lst)
     }
 }
 
+int		is_char_printable(int c)
+{
+	if (c >= 33 && c <= 126)
+		return (1);
+	return (0);
+}
 
-void    set_command(char *line, int i, m_cmd *command)
+void    create_string(char *line, int i, m_parse *parse, m_env *env)
+{
+    char *str;
+    char *temp;
+
+    str = 0;
+    temp = 0;
+    if (i - parse->save > 1)  // > 1 ?
+    {
+        str = ft_substr(line, parse->save, i);
+        if (parse->in_dollar == TRUE)
+        {
+            temp = search_env(str, &env);
+            free(str);
+            str = temp;
+            parse->in_dollar = FALSE;
+        }
+        ft_strjoin_free(parse->content, str, 2);
+    }
+    parse->save = i + 2;
+}
+
+void    handler_slash(char *line, int *i, m_parse *parse, m_env *env)
+{
+    if (parse->in_dquote == FALSE && parse->in_squote == FALSE) // sans quotes
+    {
+        create_string(line, *i - 1, parse, env);
+        parse->save = ++(*i);
+        if (!is_char_printable(line[*i]))
+        {
+            ft_printf("Error : multiligne");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if (parse->is_double == TRUE)
+    {
+        if (line[*i + 1] == '"' || line[*i + 1] == '$' || line[*i + 1] == '\\')
+        {
+            create_string(line, *i - 1, parse, env);
+            (*i)++;
+        }
+    }
+}
+
+void     handler_dollar(char *line, int *i, m_parse *parse, m_env *env)
+{
+    if (!is_char_printable(line[*i + 1]) || parse->in_squote == TRUE)
+        return;
+    create_string(line, *i - 1, parse, env);
+    parse->in_dollar = TRUE;
+    
+}
+
+void     handler_quotes(char *line, int *i, m_parse *parse, m_env *env)
+{
+    if (line[*i] == '"')
+        parse->in_squote = TRUE;
+    else
+        parse->in_dquote = TRUE;
+    create_string(line, *i - 1, parse, env);
+}
+
+int    set_content(char *line, int i, m_parse *parse, m_cmd *cmd, m_env *env)
+{
+    parse->save = i;
+    while (line[i] && (parse->in_squote == TRUE || parse->in_dquote == TRUE
+    || (line[i] != '|' && line[i] != ';' && line[i] != ' ')))
+    {
+        if (line[i] == '\\')
+            handler_slash(line, &i, parse, env);
+        else if (line[i] == '\'' || line[i] == '"')
+            handler_quotes(line, &i, parse, env);
+        else if (line[i] == '$')
+            handler_dollar(line, &i, parse, env);
+        if (line[i] && (parse->in_squote == TRUE || parse->in_dquote == TRUE
+        || (line[i] != '|' && line[i] != ';' && line[i] != ' ')))
+            i++;
+    }
+    if (parse->in_squote == TRUE || parse->in_dquote == TRUE)
+    {
+        ft_printf("Pas de multiligne"); //ERREUR
+        exit(EXIT_FAILURE);
+    }
+    create_string(line, i, parse, env);
+    if (parse->in_input)
+        cmd->input = parse->content;
+    else if (parse->in_output)
+        add_output(parse->content, parse->is_double, &(cmd->output));
+    else
+        add_arg(parse->content, &(cmd->args));
+    parse->in_input = FALSE;
+    parse->in_output = FALSE;
+    parse->is_double = FALSE;
+    return (i);
+}
+
+int     set_command(char *line, int i, m_cmd *command, m_env *env)
 {
     m_parse parse;
 
     parse = init_parse();
-    // content qui dup et join au fur et a mesure
     while (line[i] && line[i] != '|' && line[i] != ';')
     {
-        if (line[i] == '\\')
-            set_flag_slash(line, &i, &parse);
-        if (line[i] == '\'' || line[i] == '"')
-            set_flag_quotes(line, i, &parse);
-        if (parse.in_squote == TRUE || parse.in_dquote == TRUE)
-            ;
-        else if (parse.in_slash == FALSE && (line[i] == '>' || line[i] == '<'))
+        if (line[i] != '>' || line[i] != '<' || line[i] != ' ') // dans un arg
+            i = set_content(line, i, &parse, command, env);
+        else if (line[i] == '>' || line[i] == '<') // set redirection
         {
             if (parse.in_output == TRUE || parse.in_input == TRUE) // erreur de type echo < <
             {
@@ -216,106 +311,20 @@ void    set_command(char *line, int i, m_cmd *command)
                     parse.is_double = TRUE;
                     i++;
                 }
-                else
-                    parse.is_double = FALSE;
             }
             else
                 parse.in_input = TRUE; 
         }
-        else if (line[i] == ' ')
-        {
-            if (parse.in_arg == TRUE)
-            {
-
-                ft_printf("[1] save: %d i: %d %.*s\n", parse.save, i ,i - parse.save, line + parse.save);
-                if (parse.in_output == TRUE)
-                {
-                    add_output(content, parse.is_double, command->output); // ajoute une sortie a la liste commande->output (content = chaine de save a i, is_double = parse.is_double)
-                    parse.in_output = FALSE;
-                }
-                else if (parse.in_input == TRUE)
-                {
-                    parse.in_input = FALSE;
-                    command->input = content; // modifie la valeure de commande->input (content = chaine de save a i)
-                }
-                else
-                    add_arg(content, command->args); // ajouter un argument a ma liste (content = chaine de save a i)
-                parse.in_arg = FALSE;
-                parse.start_slash = FALSE;
-            }
-        }
-        else
-        {
-            if (parse.in_arg == FALSE)
-            {
-                if (parse.in_slash == TRUE)
-                    parse.start_slash = TRUE;
-                parse.save = i;
-                parse.in_arg = TRUE;
-            }
-        }
         i++;
-        parse.in_slash = FALSE;
-    }
-    if (parse.in_arg == TRUE)
-    {
-        if (parse.in_dquote || parse.in_squote)
-        {
-            ft_printf("Error: quotes");
-            exit(EXIT_FAILURE);
-        }
-        if (parse.in_arg == TRUE)
-        {
-            ft_printf("[1] save: %d i: %d %.*s\n", parse.save, i ,i - parse.save, line + parse.save);
-            content = add_arg(line, i, &parse);
-            if (parse.in_output == TRUE)
-            {
-                add_output(content, parse.is_double, command->output); // ajoute une sortie a la liste commande->output (content = chaine de save a i, is_double = parse.is_double)
-                parse.in_output = FALSE;
-            }
-            else if (parse.in_input == TRUE)
-            {
-                parse.in_input = FALSE;
-                command->input = content; // modifie la valeure de commande->input (content = chaine de save a i)
-            }
-            else
-                add_arg(content, command->args); // ajouter un argument a ma liste (content = chaine de save a i)
-            parse.in_arg = FALSE;
-            parse.start_slash = FALSE;
-        }
     }
     if (line[i] == '|')
             command->pipe = TRUE;
-    exit(1);
+    return (i);
 }
 
-m_cmd  *new_command()
-{
-    m_cmd *command;
+// PROBLEME POINTEUR COMMAND JE PENSE
 
-    if (!(command = malloc(sizeof(m_cmd))))
-        exit(EXIT_FAILURE);
-    command->pipe = FALSE;
-    command->next = 0;
-    return (command);
-}
-
-void    add_back_command(m_cmd **commands, m_cmd *command) // a regler
-{
-    m_cmd   *temp;
-
-    temp = *commands;
-    if (!temp)
-        *commands = command;
-    else
-    {
-        while (temp->next)
-            temp = temp->next;
-        temp->next = command;
-    }
-}
-
-m_cmd  *set_commands(char *line)
+m_cmd  *set_commands(char *line, m_env *env)
 {
     int     i;
     m_cmd   *commands;
@@ -323,14 +332,14 @@ m_cmd  *set_commands(char *line)
 
     i = 0;
     commands = 0;
-    command = new_command();
     while (line[i])
     {
-        set_command(line, i, command);
-        add_back_command(&commands, command);
         command = new_command();
+        i = set_command(line, i, command, env);
+        add_command(&commands, command);
         if (line[i])
             i++;
     }
+    debug_struct(&commands);
     return (commands);
 }

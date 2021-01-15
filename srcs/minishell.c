@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 10:54:17 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/12 12:57:49 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/15 11:31:50 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,21 +55,24 @@ void    signal_handler(int signum)
     }
 }
 
-int main(int argc, char **argv, char **env)
+int main(int argc, char **argv, char **e)
 {
     int res;
     char *input;
     m_cmd *commands;
+    m_env *env;
+
     errno = 0;
     (void)argc;
     (void)argv;
-    signal(SIGINT, signal_handler); // ctrl-c ne me fait pas quitter minishell
-    signal(SIGQUIT, SIG_IGN); // ctrl-\ ne me fait pas quitter minishell
+    env = set_env(e);
     while(1)
     {
+        signal(SIGINT, signal_handler); // ctrl-c ne me fait pas quitter minishell
+        signal(SIGQUIT, SIG_IGN); // ctrl-\ ne me fait pas quitter minishell
         prompt();
         res = get_next_line(0, &input); // exit si ctrl-D a integrer dans le gnl
-        commands = set_commands(input);
+        commands = set_commands(input, env);
         if (res == 0 && !strcmp(input, ""))
             exit(EXIT_SUCCESS);
         else if (!strcmp(input, "exit"))
@@ -77,9 +80,9 @@ int main(int argc, char **argv, char **env)
         else if (!strcmp(input, "env"))
         {
             int i = 0;
-            while(env[i])
+            while(e[i])
             {
-                ft_printf("%s\n", env[i]);
+                ft_printf("%s\n", e[i]);
                 i++;
             }
         }

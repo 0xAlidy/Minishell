@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/05 21:59:37 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/14 14:11:12 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/15 11:32:07 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,29 +39,26 @@ typedef struct      s_arg
 
 typedef struct      s_parse
 {
-    int     args;
-    int     output;
-    int     save;
-    int     start_slash;
-    int     in_squote;
-    int     in_dquote;
-    int     in_input;
-    int     in_output;
-    int     in_arg;
-    int     in_slash;
-    int     in_dollar;
-    int     is_double;
-    char    *content;
+    int             args;
+    int             output;
+    int             save;
+    int             in_squote;
+    int             in_dquote;
+    int             in_input;
+    int             in_output;
+    int             in_dollar;
+    int             is_double;
+    char            *content;
 }                   m_parse;
 
 /* Liste des fichiers d'output */
 
-typedef struct      s_output
+typedef struct          s_output
 {
-    char            *content;
-    int             is_double;
-    struct s_out    *next;
-}                   m_output;
+    char                *content;
+    int                 is_double;
+    struct s_output     *next;
+}                       m_output;
 
 /* Liste des commandes entrees par l'utilisateur */
 
@@ -83,10 +80,12 @@ typedef struct      s_env
     struct s_env    *next;
 }                   m_env;
 
-char    *ms_get_env(char **env, char *key);
-char    *ms_current_folder();
-m_cmd   *set_commands(char *line);
-void     set_command(char *line, int i, m_cmd *command);
+char                *ms_get_env(char **env, char *key);
+char                *ms_current_folder();
+m_cmd               *set_commands(char *line, m_env *env);
+int                 set_command(char *line, int i, m_cmd *command, m_env *env);
+m_env               *set_env(char **tab);
+char                *search_env(char *str, m_env **lst);
 
 
 #endif
