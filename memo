@@ -16,6 +16,8 @@
 
                            https://www.gnu.org/software/bash/manual/bash.html
 
+                           https://www.cs.purdue.edu/homes/grr/SystemsProgrammingBook/Book/Chapter5-WritingYourOwnShell.pdf
+
 [Man fonctions]
 
 * fork() crée un nouveau processus en dupliquant le processus appelant. Le nouveau processus, que l'on appelle processus fils, est la copie exacte du processus appelant.
@@ -143,3 +145,10 @@ If a command fails because of an error during expansion or redirection, the exit
 The exit status is used by the Bash conditional commands (see Conditional Constructs) and some of the list constructs (see Lists).
 
 All of the Bash builtins return an exit status of zero if they succeed and a non-zero status on failure, so they may be used by the conditional and list constructs. All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments
+
+1 => pipe
+2 => redirections
+3 => built in
+4 => fork si pas pipe execute
+
+https://stackoverflow.com/questions/8082932/connecting-n-commands-with-pipes-in-a-shell
