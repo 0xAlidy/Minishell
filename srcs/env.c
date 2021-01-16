@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/15 10:24:55 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/15 12:10:22 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/16 09:46:04 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,6 @@ char        *search_env(char *str, m_env **lst)
     {
         while (temp)
         {
-            if (!temp)
-                return (0);
             if (!ft_strncmp(str, temp->name,ft_strlen(str)))
                 return (ft_strdup(temp->content)); 
             temp = temp->next;

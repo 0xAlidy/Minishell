@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/16 09:39:25 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/16 09:48:41 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,6 +215,8 @@ void    create_string(char *line, int i, m_parse *parse, m_env *env)
         {
             temp = search_env(str, &env);
             free(str);
+            if (!temp)
+                return;
             str = temp;
             parse->in_dollar = FALSE;
         }
