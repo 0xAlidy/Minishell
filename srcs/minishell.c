@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 10:54:17 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/15 11:31:50 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/16 12:39:15 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,12 +68,15 @@ int main(int argc, char **argv, char **e)
     env = set_env(e);
     while(1)
     {
-        signal(SIGINT, signal_handler); // ctrl-c ne me fait pas quitter minishell
-        signal(SIGQUIT, SIG_IGN); // ctrl-\ ne me fait pas quitter minishell
+        signal(SIGINT, signal_handler);
+        signal(SIGQUIT, SIG_IGN);
         prompt();
-        res = get_next_line(0, &input); // exit si ctrl-D a integrer dans le gnl
+        res = get_next_line(0, &input);
         commands = set_commands(input, env);
-        if (res == 0 && !strcmp(input, ""))
+        if (commands && commands->args) // s'il y a une commande
+            ft_printf("exec");
+            //exec_commands(commands, env);
+        if (res == 0 && !strcmp(input, "")) // ctrl-D
             exit(EXIT_SUCCESS);
         else if (!strcmp(input, "exit"))
             exit(EXIT_SUCCESS);
