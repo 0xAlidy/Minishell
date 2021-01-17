@@ -6,11 +6,19 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 10:54:17 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/16 12:39:15 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/17 11:30:00 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+m_sct   init_sct()
+{
+    m_sct sct;
+
+    sct.status = 0;
+    return (sct);
+}    
 
 char    *ms_current_folder(void)
 {
@@ -55,41 +63,46 @@ void    signal_handler(int signum)
     }
 }
 
-int main(int argc, char **argv, char **e)
+void    minishell(int fd, char **e)
 {
-    int res;
-    char *input;
-    m_cmd *commands;
-    m_env *env;
+    m_cmd   *commands;
+    m_env   *env;
+    m_sct   sct;
+    char    *input;
 
-    errno = 0;
-    (void)argc;
-    (void)argv;
     env = set_env(e);
-    while(1)
+    while (42)
     {
         signal(SIGINT, signal_handler);
         signal(SIGQUIT, SIG_IGN);
         prompt();
-        res = get_next_line(0, &input);
+        get_next_line(fd, &input);
         commands = set_commands(input, env);
         if (commands && commands->args) // s'il y a une commande
-            ft_printf("exec");
-            //exec_commands(commands, env);
-        if (res == 0 && !strcmp(input, "")) // ctrl-D
-            exit(EXIT_SUCCESS);
-        else if (!strcmp(input, "exit"))
-            exit(EXIT_SUCCESS);
-        else if (!strcmp(input, "env"))
         {
-            int i = 0;
-            while(e[i])
-            {
-                ft_printf("%s\n", e[i]);
-                i++;
-            }
+            sct = init_sct();
+            ft_printf("exec");
+            //exec_commands(sct, commands, env);
         }
-        // si built-in lancer mon ficher
-        // sinon fork+execve avec recherche de la commande dans les fichiers $PATH
     }
+    //free_minishell(env, commands);
+    close(fd);
+}
+
+int     main(int argc, char **argv, char **env)
+{
+    int fd;
+
+    fd = 0;
+    errno = 0;
+    if (argc == 1)
+        minishell(fd, env);
+    else
+    {
+        if ((fd = open(argv[1], O_RDONLY)) < 0)
+            ft_printf("Minishell: %s: %s\n", argv[1], strerror(errno));
+        else
+            minishell(fd, env);
+    }
+    return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/16 12:38:09 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/17 12:08:48 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,41 @@
 */
 
 // GERER LE CAS echo >  > ok  ne compter qu'un fichier  echo > mdr salut =====> salut mdr
+
+void    debug_struct(m_cmd **cmds)
+{
+    m_cmd    *temp;
+    m_output *out;
+    m_arg   *args;
+
+    temp = *cmds;
+    if (!cmds)
+        return;
+    while (temp)
+    {
+        out = temp->output;
+        args = temp->args;
+        ft_printf("args : ");
+        while (args)
+        {
+            ft_printf("%s -> ", args->content);
+            args = args->next;
+        }
+        ft_printf("\n");
+        ft_printf("out : ");
+        while (out)
+        {
+            ft_printf("%s [%d] -> ", out->content, out->is_double);
+            out = out->next;
+        }
+        ft_printf("\n");
+        ft_printf("input: %s",temp->input);
+        ft_printf("\n");
+        ft_printf("pipe: %d",temp->pipe);
+        ft_printf("\n");
+        temp = temp->next;
+    }   
+}
 
 m_parse     init_parse()
 {
@@ -105,43 +140,6 @@ m_cmd  *new_command()
     command->next = 0;
     return (command);
 }
-
-void    debug_struct(m_cmd **cmds)
-{
-    m_cmd    *temp;
-    m_output *out;
-    m_arg   *args;
-
-    temp = *cmds;
-    if (!cmds)
-        return;
-    while (temp)
-    {
-        out = temp->output;
-        args = temp->args;
-        ft_printf("args : ");
-        while (args)
-        {
-            ft_printf("%s -> ", args->content);
-            args = args->next;
-        }
-        ft_printf("\n");
-        ft_printf("out : ");
-        while (out)
-        {
-            ft_printf("%s [%d] -> ", out->content, out->is_double);
-            out = out->next;
-        }
-        ft_printf("\n");
-        ft_printf("input: %s",temp->input);
-        ft_printf("\n");
-        ft_printf("pipe: %d",temp->pipe);
-        ft_printf("\n");
-        temp = temp->next;
-    }   
-}
-
-
 
 void    add_command(m_cmd **commands, m_cmd *command)
 {
@@ -213,7 +211,10 @@ void    create_string(char *line, int i, m_parse *parse, m_env *env)
         str = ft_substr(line, parse->save, i - parse->save);
         if (parse->in_dollar == TRUE)
         {
-            temp = search_env(str, &env);
+            if (ft_strncmp(str, "?", ft_strlen(str))) // pour gerer $?
+                parse->content = ft_strdup("$?");
+            else
+                temp = search_env(str, &env);
             free(str);
             if (!temp)
                 return;
@@ -360,6 +361,8 @@ int     set_command(char *line, int i, m_cmd *command, m_env *env)
     }
     if (line[i] == '|')
             command->pipe = TRUE;
+    if (parse.content)
+        free(parse.content);
     return (i);
 }
 
@@ -379,6 +382,6 @@ m_cmd  *set_commands(char *line, m_env *env)
         if (line[i])
             i++;
     }
-    //debug_struct(&commands);
+    debug_struct(&commands);
     return (commands);
 }

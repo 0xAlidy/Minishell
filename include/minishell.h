@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/05 21:59:37 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/16 08:40:54 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/17 12:21:20 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,6 @@ typedef struct      s_arg
 
 typedef struct      s_parse
 {
-    int             args;
-    int             output;
     int             save;
     int             in_squote;
     int             in_dquote;
@@ -80,12 +78,25 @@ typedef struct      s_env
     struct s_env    *next;
 }                   m_env;
 
+/* Variables pendant l'execution des commandes */
+
+typedef struct      s_sct
+{
+    int             status;
+    int             in_pipe;
+    char            *cmd;
+    char            **args;
+    char            *path;
+    m_cmd           **start_list;
+}                   m_sct;
+
 char                *ms_get_env(char **env, char *key);
 char                *ms_current_folder();
 m_cmd               *set_commands(char *line, m_env *env);
 int                 set_command(char *line, int i, m_cmd *command, m_env *env);
 m_env               *set_env(char **tab);
 char                *search_env(char *str, m_env **lst);
+void                ft_exit(char *str, int exit_status, m_sct *sct);
 
 
 #endif
