@@ -1,32 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mini_utils.c                                       :+:      :+:    :+:   */
+/*   ft_pwd.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/17 09:43:56 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/18 08:33:03 by alidy            ###   ########lyon.fr   */
+/*   Created: 2021/01/19 08:47:58 by alidy             #+#    #+#             */
+/*   Updated: 2021/01/19 08:48:13 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void    ft_exit_shell(char *str, int exit_status, m_sct *sct)
+void    ft_pwd(m_sct *sct)
 {
-    if (exit_status > 0)
-    {
-        if (str)
-            ft_printf("Minishell: %s : %s", str, strerror(errno));
-        else
-            ft_printf("Minishell: %s", strerror(errno));
-    }
-    errno = 0; // a voir
-    sct->status = exit_status;
-    exit(sct->status);
-}
+    char    *path;
 
-/*void    free_minishell(m_cmd **cmds, m_env *env)
-{
-    ;
-}*/
+    if(!(path = malloc(PATH_MAX * sizeof(char))))
+    {
+        ft_printf("[ERROR] MALLOC");
+        exit(EXIT_FAILURE);
+    }
+    if (sct->args[0])
+        ft_printf("pwd: too many arguments\n");
+    else
+        ft_printf("%s\n", getcwd(path, PATH_MAX));
+}

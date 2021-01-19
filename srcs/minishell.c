@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 10:54:17 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/17 11:30:00 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/19 11:31:10 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ m_sct   init_sct()
     m_sct sct;
 
     sct.status = 0;
+    sct.saved_stdout = -1;
+    sct.saved_stdin = -1;
     return (sct);
 }    
 
@@ -63,6 +65,30 @@ void    signal_handler(int signum)
     }
 }
 
+char    *ft_minitrim(char *str)
+{
+    int     i;
+    char    *res;
+
+    i = 0;
+    if (!(res = malloc(ft_strlen(str) + 1)))
+    {
+        ft_printf("error malloc");
+        exit(EXIT_FAILURE);
+    }
+    while (str[i])
+    {
+        if (str[i] == '\t' || str[i] == '\v' || str[i] == '\f' || str[i] == '\r')
+            res[i] = ' ';
+        else
+            res[i] = str[i];
+        i++;
+    }
+    res[i] = 0;
+    free(str);
+    return (res);
+}
+
 void    minishell(int fd, char **e)
 {
     m_cmd   *commands;
@@ -74,19 +100,20 @@ void    minishell(int fd, char **e)
     while (42)
     {
         signal(SIGINT, signal_handler);
-        signal(SIGQUIT, SIG_IGN);
+        //signal(SIGQUIT, SIG_IGN);
         prompt();
         get_next_line(fd, &input);
+        input = ft_minitrim(input, ' '); // free input;
         commands = set_commands(input, env);
         if (commands && commands->args) // s'il y a une commande
         {
             sct = init_sct();
-            ft_printf("exec");
-            //exec_commands(sct, commands, env);
+            exec_commands(&sct, &commands, env);
         }
     }
     //free_minishell(env, commands);
-    close(fd);
+    if (fd)
+        close(fd);
 }
 
 int     main(int argc, char **argv, char **env)

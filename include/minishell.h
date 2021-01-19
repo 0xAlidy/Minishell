@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/05 21:59:37 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/17 12:21:20 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/19 08:32:36 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,11 @@ typedef struct      s_arg
 typedef struct      s_parse
 {
     int             save;
+    int             type_output;
     int             in_squote;
     int             in_dquote;
-    int             in_input;
-    int             in_output;
     int             in_dollar;
+    int             in_slash;
     int             is_double;
     char            *content;
 }                   m_parse;
@@ -54,7 +54,7 @@ typedef struct      s_parse
 typedef struct          s_output
 {
     char                *content;
-    int                 is_double;
+    int                 type;
     struct s_output     *next;
 }                       m_output;
 
@@ -63,7 +63,6 @@ typedef struct          s_output
 typedef struct		s_cmd
 {
     m_arg           *args;
-    char            *input;
     m_output        *output;
     int             pipe;
 	struct s_cmd	*next;
@@ -87,7 +86,9 @@ typedef struct      s_sct
     char            *cmd;
     char            **args;
     char            *path;
-    m_cmd           **start_list;
+    char            **envp;
+    int             saved_stdout;
+    int             saved_stdin;
 }                   m_sct;
 
 char                *ms_get_env(char **env, char *key);
@@ -96,7 +97,11 @@ m_cmd               *set_commands(char *line, m_env *env);
 int                 set_command(char *line, int i, m_cmd *command, m_env *env);
 m_env               *set_env(char **tab);
 char                *search_env(char *str, m_env **lst);
-void                ft_exit(char *str, int exit_status, m_sct *sct);
+void                ft_exit_shell(char *str, int exit_status, m_sct *sct);
+void                exec_simple_command(m_sct *sct, m_cmd *command, m_env *env);
+void                exec_commands(m_sct *sct, m_cmd **commands, m_env *env);
+void                ft_echo(m_sct *sct);
+void                ft_pwd(m_sct *sct);
 
 
 #endif

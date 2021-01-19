@@ -152,3 +152,11 @@ All of the Bash builtins return an exit status of zero if they succeed and a non
 4 => fork si pas pipe execute
 
 https://stackoverflow.com/questions/8082932/connecting-n-commands-with-pipes-in-a-shell
+
+
+casser un minishell :
+
+1) echo $\mdr
+2) echo salut > res < xd > res2
+3) echo salut\\$?mdr
+4) echo $\?mdr

@@ -6,7 +6,7 @@
 #    By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/02 17:12:28 by alidy             #+#    #+#              #
-#    Updated: 2021/01/17 11:16:09 by alidy            ###   ########lyon.fr    #
+#    Updated: 2021/01/19 08:48:27 by alidy            ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,6 +22,10 @@ SRCS_NAME		=		minishell.c 	\
 						parsing.c 		\
 						env.c 			\
 						mini_utils.c	\
+						execution.c 	\
+						ft_echo.c		\
+						ft_pwd.c 		\
+
 						
 OBJS			=		${SRCS:.c=.o}
 

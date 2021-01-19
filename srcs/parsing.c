@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/17 12:08:48 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/19 11:18:47 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,11 +77,9 @@ void    debug_struct(m_cmd **cmds)
         ft_printf("out : ");
         while (out)
         {
-            ft_printf("%s [%d] -> ", out->content, out->is_double);
+            ft_printf("%s [%d] -> ", out->content, out->type);
             out = out->next;
         }
-        ft_printf("\n");
-        ft_printf("input: %s",temp->input);
         ft_printf("\n");
         ft_printf("pipe: %d",temp->pipe);
         ft_printf("\n");
@@ -95,23 +93,22 @@ m_parse     init_parse()
 
     parse.save = 0;
     parse.content = 0;
-    parse.in_input = FALSE;
-    parse.in_output = FALSE;
+    parse.type_output = 0;
+    parse.in_slash = FALSE;
     parse.in_squote = FALSE;
     parse.in_dquote = FALSE;
     parse.in_dollar = FALSE;
-    parse.is_double = FALSE;
     return (parse);
 }
 
-m_output *new_output(char *output, int is_double)
+m_output *new_output(char *output, int type)
 {
     m_output *new;
 
     if (!(new = malloc(sizeof(m_output))))
         exit(EXIT_FAILURE);
     new->content = ft_strdup(output);
-    new->is_double = is_double;
+    new->type = type;
     new->next = 0;
     return (new);
 }
@@ -135,7 +132,6 @@ m_cmd  *new_command()
         exit(EXIT_FAILURE);
     command->args = 0;
     command->output = 0;
-    command->input = 0;
     command->pipe = FALSE;
     command->next = 0;
     return (command);
@@ -157,12 +153,12 @@ void    add_command(m_cmd **commands, m_cmd *command)
     }
 }
 
-void    add_output(char *output, int is_double, m_output **lst)
+void    add_output(char *output, int type, m_output **lst)
 {
     m_output *new;
     m_output *temp;
 
-    new = new_output(output, is_double);    
+    new = new_output(output, type);    
     temp = *lst;
     if (!*lst)
         *lst = new;
@@ -198,6 +194,17 @@ int		is_char_printable(int c)
 	return (0);
 }
 
+int     is_empty(char *line, int i)
+{
+    while (line[i])
+    {
+        if (is_char_printable(line[i]))
+            return (FALSE);
+        i++;
+    }
+    return (TRUE);
+}
+
 void    create_string(char *line, int i, m_parse *parse, m_env *env)
 {
     char *str;
@@ -205,14 +212,19 @@ void    create_string(char *line, int i, m_parse *parse, m_env *env)
 
     str = 0;
     temp = 0;
+    (void)line;
+    (void)env;
     //ft_printf("i : %d save : %d content : %s\n", i, parse->save, parse->content);
     if (i - parse->save > 0)  // > 1 ?
     {
         str = ft_substr(line, parse->save, i - parse->save);
         if (parse->in_dollar == TRUE)
         {
-            if (ft_strncmp(str, "?", ft_strlen(str))) // pour gerer $?
-                parse->content = ft_strdup("$?");
+            if (!ft_strncmp(str, "?", 1)) // pour gerer $?
+            {
+                str = ft_strjoin_free("$", str, 2);
+                parse->content = ft_strjoin_free(parse->content, str, 1);
+            }
             else
                 temp = search_env(str, &env);
             free(str);
@@ -229,6 +241,8 @@ void    create_string(char *line, int i, m_parse *parse, m_env *env)
 
 void    handler_slash(char *line, int *i, m_parse *parse, m_env *env)
 {
+    if (line[*i + 1])
+        parse->in_slash = TRUE;
     if (parse->in_dquote == FALSE && parse->in_squote == FALSE) // sans quotes
     {
         
@@ -252,7 +266,13 @@ void    handler_slash(char *line, int *i, m_parse *parse, m_env *env)
 
 void     handler_dollar(char *line, int *i, m_parse *parse, m_env *env)
 {
-    if (!is_char_printable(line[*i + 1]) || parse->in_squote == TRUE)
+    if (line[*i + 1] == '?' && (parse->in_slash == TRUE || parse->in_squote == TRUE))
+    {
+        parse->content = ft_strjoin_free(parse->content, "\t$", 1);
+        parse->save = *i + 1;
+        return;
+    }
+    if (!is_char_printable(line[*i + 1]) || parse->in_squote == TRUE || line[*i + 1] == '\\' || parse->in_slash == TRUE)
         return;
     create_string(line, *i, parse, env);
     parse->in_dollar = TRUE;
@@ -281,20 +301,20 @@ void     handler_quotes(char *line, int *i, m_parse *parse, m_env *env)
 int    set_content(char *line, int i, m_parse *parse, m_cmd *cmd, m_env *env)
 {
     parse->save = i;
-    while (line[i] && (parse->in_squote == TRUE || parse->in_dquote == TRUE
+    while (line[i] && (parse->in_squote == TRUE || parse->in_dquote == TRUE || parse->in_slash == TRUE
     || (line[i] != '|' && line[i] != ';' && line[i] != ' ' && line[i] != '<' && line[i] != '>')))
     {
+        parse->in_slash = FALSE;
         if (line[i] == '\\')
             handler_slash(line, &i, parse, env);
         else if (line[i] == '\'' || line[i] == '"')
             handler_quotes(line, &i, parse, env);
-        else if (line[i] == '$')
+        if (line[i] == '$')
             handler_dollar(line, &i, parse, env);
-        if (line[i] && (parse->in_squote == TRUE || parse->in_dquote == TRUE
+        if (line[i] && (parse->in_squote == TRUE || parse->in_dquote == TRUE || parse->in_slash == TRUE
         || (line[i] != '|' && line[i] != ';' && line[i] != ' ')))
             i++;
     }
-
     if (parse->in_squote == TRUE || parse->in_dquote == TRUE)
     {
         ft_printf("ERREUR: QUOTES"); //ERREUR
@@ -303,16 +323,13 @@ int    set_content(char *line, int i, m_parse *parse, m_cmd *cmd, m_env *env)
     create_string(line, i, parse, env);
     if (parse->content)
     {
-        if (parse->in_input)
-            cmd->input = ft_strdup(parse->content);
-        else if (parse->in_output)
-            add_output(parse->content, parse->is_double, &(cmd->output));
+        if (parse->type_output)
+            add_output(parse->content, parse->type_output, &(cmd->output));
         else
             add_arg(parse->content, &(cmd->args));
         free(parse->content);
         parse->content = 0;
-        parse->in_input = FALSE;
-        parse->in_output = FALSE;
+        parse->type_output = 0;
         parse->is_double = FALSE;
     }
     return (i);
@@ -325,42 +342,45 @@ int     set_command(char *line, int i, m_cmd *command, m_env *env)
     parse = init_parse();
     while (line[i] && line[i] != '|' && line[i] != ';')
     {
-        
         if (line[i] != '>' && line[i] != '<' && line[i] != ' ') // dans un arg
             i = set_content(line, i, &parse, command, env);
-        
         if (line[i] == '>' || line[i] == '<') // set redirection
         {
-            if (parse.in_output == TRUE || parse.in_input == TRUE) // erreur de type echo < <
+            if (parse.type_output) // erreur de type echo < <
             {
                 ft_printf("Erreur: redirection");
                 exit(EXIT_FAILURE);
             }
             if (line[i] == '>')
             {
-                parse.in_output = TRUE;
+                parse.type_output = 2;
                 
                 if (line[i + 1] == '>')
                 {
-                    parse.is_double = TRUE;
-                    
+                    parse.type_output = 3;
                     i++;
                 }
             }
             else
-                parse.in_input = TRUE; 
+                parse.type_output = 1; 
         }
         if (line[i] && line[i] != '|' && line[i] != ';')
             i++;
-        // ft_printf("redi : %d\n", parse.in_output);
     }
-    if (parse.in_input == TRUE || parse.in_output == TRUE)
+    if (parse.type_output)
     {
         ft_printf("ERROR : Redirection");
         exit(EXIT_FAILURE);
     }
     if (line[i] == '|')
-            command->pipe = TRUE;
+    {
+        command->pipe = TRUE;
+        if (is_empty(line, i + 1))
+        {
+            ft_printf("ERREUR: pipe : multiligne");
+            exit(EXIT_FAILURE);
+        }
+    }
     if (parse.content)
         free(parse.content);
     return (i);
@@ -382,6 +402,6 @@ m_cmd  *set_commands(char *line, m_env *env)
         if (line[i])
             i++;
     }
-    debug_struct(&commands);
+     debug_struct(&commands);
     return (commands);
 }
