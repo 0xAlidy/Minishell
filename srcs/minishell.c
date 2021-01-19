@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 10:54:17 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 11:35:21 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/19 18:38:33 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ void    minishell(int fd, char **e)
         //signal(SIGQUIT, SIG_IGN);
         prompt();
         get_next_line(fd, &input);
-        input = ft_minitrim(input); // free input;
+        input = ft_minitrim(input);
         commands = set_commands(input, env);
         if (commands && commands->args) // s'il y a une commande
         {

@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/17 09:43:56 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/18 08:33:03 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/19 17:17:21 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,3 +30,4 @@ void    ft_exit_shell(char *str, int exit_status, m_sct *sct)
 {
     ;
 }*/
+

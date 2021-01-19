@@ -6,7 +6,7 @@
 #    By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/28 10:24:13 by alidy             #+#    #+#              #
-#    Updated: 2021/01/11 10:44:09 by alidy            ###   ########lyon.fr    #
+#    Updated: 2021/01/19 18:24:59 by alidy            ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,6 +38,8 @@ SRCS_NAME		=		ft_atoi.c				\
 						ft_strrchr.c			\
 						ft_strtrim.c			\
 						ft_substr.c 			\
+						ft_strfree.c 			\
+						ft_replace.c 			\
 						ft_tolower.c			\
 						ft_toupper.c			\
 						ft_calloc.c 			\

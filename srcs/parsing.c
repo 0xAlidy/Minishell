@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 11:45:32 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/19 18:35:40 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,7 +282,7 @@ void     handler_dollar(char *line, int *i, m_parse *parse, m_env *env)
 {
     if (line[*i + 1] == '?' && (parse->in_slash == TRUE || parse->in_squote == TRUE))
     {
-        parse->content = ft_strjoin_free(parse->content, "\t$", 1);
+        parse->content = ft_strjoin_free(parse->content, "$\t", 1);
         parse->save = *i + 1;
         return;
     }

@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/16 10:10:45 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 11:59:33 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/19 18:32:27 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,38 +143,6 @@ void    set_envp(m_sct *sct, m_env **env)
     }
 }
 
-char    *ft_remove_char(m_sct *sct, char *str, char c)
-{
-    int     i;
-    int     count;
-    char    *res;
-
-    i = 0;
-    count = 0;
-    res = 0;
-    while (str[i])
-    {
-        if (str[i] == '$' && str[i + 1] == '?')
-            count++;
-        i++;
-    }
-    if (!(res = malloc(i + 1 - (count * (2 - ft_intlen(sct->status))))))
-        exit(EXIT_FAILURE);
-    i = 0;
-    count = 0;
-    while (str[i])
-    {
-        if (str[i] == "$" && str[i] == '?')
-        {
-            i++;
-        }
-        else
-            res[count] = str[i];
-        count++;
-        i++;
-    }
-}
-
 void    transform_args(m_sct *sct, m_arg **args)
 {
     int     len;
@@ -194,8 +162,8 @@ void    transform_args(m_sct *sct, m_arg **args)
     len = 0;
     while (temp)
     {
-        // si j'ai $? sans \t je remplace
-        // ft_minitrim_remove(temp->content)je trime les \t en rien
+        temp->content = ft_replace(temp->content, "$?", ft_itoa(sct->status), 1);
+        temp->content = ft_replace(temp->content, "\t", "", 1);
         if (len == 0)
             sct->cmd = ft_strdup(temp->content); // set cmd
         else
