@@ -1,35 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pwd.c                                              :+:      :+:    :+:   */
+/*   ms_echo.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/09/06 23:36:59 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 08:47:53 by alidy            ###   ########lyon.fr   */
+/*   Created: 2021/01/18 08:24:14 by alidy             #+#    #+#             */
+/*   Updated: 2021/01/19 19:13:58 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-char *ms_get_env(char **env, char *key)
+void    ms_echo(m_sct *sct)
 {
-    int     i;
-    int     len;
-    char    *var;
+    int i;
+    int option;
 
     i = 0;
-    var = ft_strjoin(key, "=");
-    len = ft_strlen(var);
-    while(env[i])
+    option = FALSE;
+    while (sct->args[i])
     {
-        if (!ft_strncmp(env[i], var, len))
+        if (i == 0 && !ft_strncmp(sct->args[i], "-n", 2))
+            option = TRUE;
+        else
         {
-            free(var);
-            return (ft_substr(env[i], len, ft_strlen(env[i]) - len));
+            ft_printf("%s", sct->args[i]);
+            if (sct->args[i + 1])
+                ft_printf(" ");
         }
         i++;
     }
-    free(var);
-    return (ft_strdup(""));
+    if (option == FALSE)
+        ft_printf("\n");
 }

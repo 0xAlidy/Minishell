@@ -6,7 +6,7 @@
 #    By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/02 17:12:28 by alidy             #+#    #+#              #
-#    Updated: 2021/01/19 08:48:27 by alidy            ###   ########lyon.fr    #
+#    Updated: 2021/01/19 19:13:02 by alidy            ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,13 +18,14 @@ LIBS			=		libft/libft.a
 SRC_PATH		=		srcs
 
 SRCS_NAME		=		minishell.c 	\
-						pwd.c 			\
-						parsing.c 		\
-						env.c 			\
-						mini_utils.c	\
-						execution.c 	\
-						ft_echo.c		\
-						ft_pwd.c 		\
+						ms_parsing.c 	\
+						ms_env.c 		\
+						ms_env_utils 	\
+						ms_free 		\
+						ms_utils.c		\
+						ms_exec.c 		\
+						ms_echo.c		\
+						ms_pwd.c 		\
 
 						
 OBJS			=		${SRCS:.c=.o}

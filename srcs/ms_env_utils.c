@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   env.c                                              :+:      :+:    :+:   */
+/*   ms_env_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/15 10:24:55 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/16 09:46:04 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/19 19:15:14 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-m_env       *new_env(char *name, char *content)
+m_env       *ms_new_env(char *name, char *content)
 {
     m_env *env;
 
@@ -24,12 +24,12 @@ m_env       *new_env(char *name, char *content)
     return (env);
 }
 
-void       add_env(char *name, char *content, m_env **lst)
+void       ms_add_env(char *name, char *content, m_env **lst)
 {
     m_env *new;
     m_env *temp;
 
-    new = new_env(name, content);
+    new = ms_new_env(name, content);
     temp = *lst;
     if (!*lst)
         *lst = new;
@@ -41,7 +41,7 @@ void       add_env(char *name, char *content, m_env **lst)
     }
 }
 
-char        *search_env(char *str, m_env **lst)
+char        *ms_search_env(char *str, m_env **lst)
 {
     m_env *temp;
 
@@ -60,7 +60,7 @@ char        *search_env(char *str, m_env **lst)
     return (0);
 }
 
-m_env       *set_env(char **tab)
+m_env       *ms_set_env(char **tab)
 {
     m_env   *lst;
     int     i;
@@ -88,7 +88,7 @@ m_env       *set_env(char **tab)
         }
         i = 0;
         content = ft_substr(tab[j], save, i - save);
-        add_env(name, content, &lst);
+        ms_add_env(name, content, &lst);
         j++;
     }
     return (lst);

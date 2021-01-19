@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/05 21:59:37 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 08:32:36 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/19 19:07:35 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,15 +93,18 @@ typedef struct      s_sct
 
 char                *ms_get_env(char **env, char *key);
 char                *ms_current_folder();
-m_cmd               *set_commands(char *line, m_env *env);
-int                 set_command(char *line, int i, m_cmd *command, m_env *env);
-m_env               *set_env(char **tab);
-char                *search_env(char *str, m_env **lst);
-void                ft_exit_shell(char *str, int exit_status, m_sct *sct);
-void                exec_simple_command(m_sct *sct, m_cmd *command, m_env *env);
-void                exec_commands(m_sct *sct, m_cmd **commands, m_env *env);
-void                ft_echo(m_sct *sct);
-void                ft_pwd(m_sct *sct);
+m_cmd               *ms_set_commands(char *line, m_env *env);
+int                 ms_set_command(char *line, int i, m_cmd *command, m_env *env);
+m_env               *ms_set_env(char **tab);
+char                *ms_search_env(char *str, m_env **lst);
+void                ms_exit_shell(char *str, int exit_status, m_sct *sct);
+void                ms_exec_simple_command(m_sct *sct, m_cmd *command, m_env *env);
+void                ms_exec_commands(m_sct *sct, m_cmd **commands, m_env *env);
+void                ms_echo(m_sct *sct);
+void                ms_pwd(m_sct *sct);
+void                ms_free_cmd(m_cmd **lst);
+void                ms_free_sct(m_sct *sct);
+void                ms_free_env(m_env *env);
 
 
 #endif

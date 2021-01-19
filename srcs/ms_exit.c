@@ -1,28 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_pwd.c                                           :+:      :+:    :+:   */
+/*   ms_exit.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/19 08:47:58 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 08:48:13 by alidy            ###   ########lyon.fr   */
+/*   Created: 2021/01/19 18:41:16 by alidy             #+#    #+#             */
+/*   Updated: 2021/01/19 19:10:44 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
-
-void    ft_pwd(m_sct *sct)
+ft_exit(m_sct *sct, m_cmd *cmd, m_env *env)
 {
-    char    *path;
-
-    if(!(path = malloc(PATH_MAX * sizeof(char))))
-    {
-        ft_printf("[ERROR] MALLOC");
-        exit(EXIT_FAILURE);
-    }
-    if (sct->args[0])
-        ft_printf("pwd: too many arguments\n");
-    else
-        ft_printf("%s\n", getcwd(path, PATH_MAX));
+    ms_free_sct(sct);
+    ms_free_cmd(cmd);
+    ms_free_env(env);
+    ft_printf("exit\n");
+    exit(EXIT_SUCCESS);
 }
