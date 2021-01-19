@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 11:18:47 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/19 11:45:32 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,18 +245,32 @@ void    handler_slash(char *line, int *i, m_parse *parse, m_env *env)
         parse->in_slash = TRUE;
     if (parse->in_dquote == FALSE && parse->in_squote == FALSE) // sans quotes
     {
-        
-        create_string(line, *i, parse, env);
-        parse->save = ++(*i);
-        if (!is_char_printable(line[*i]))
+        if (line[*i + 1] == '?')
         {
-            ft_printf("Error : multiligne");
-            exit(EXIT_FAILURE);
+            create_string(line, *i, parse, env);
+            parse->content = ft_strjoin_free(parse->content, "\t", 1);
+            parse->save = ++(*i);
+        }
+        else
+        {
+            create_string(line, *i, parse, env);
+            parse->save = ++(*i);
+            if (!is_char_printable(line[*i]))
+            {
+                ft_printf("Error : multiligne");
+                exit(EXIT_FAILURE);
+            }
         }
     }
     else if (parse->in_dquote == TRUE)
     {
-        if (line[*i + 1] == '"' || line[*i + 1] == '$' || line[*i + 1] == '\\')
+        if (line[*i + 1] == '?')
+        {
+            create_string(line, *i, parse, env);
+            parse->content = ft_strjoin_free(parse->content, "\t", 1);
+            parse->save = ++(*i);
+        }
+        else if (line[*i + 1] == '"' || line[*i + 1] == '$' || line[*i + 1] == '\\')
         {
             create_string(line, *i, parse, env);
             (*i)++;

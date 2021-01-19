@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/16 10:10:45 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 11:30:53 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/19 11:59:33 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,6 +140,38 @@ void    set_envp(m_sct *sct, m_env **env)
         sct->envp[len] = ft_strjoin_free(sct->envp[len], "=", 1);
         sct->envp[len] = ft_strdup(temp->content);
         temp = temp->next;
+    }
+}
+
+char    *ft_remove_char(m_sct *sct, char *str, char c)
+{
+    int     i;
+    int     count;
+    char    *res;
+
+    i = 0;
+    count = 0;
+    res = 0;
+    while (str[i])
+    {
+        if (str[i] == '$' && str[i + 1] == '?')
+            count++;
+        i++;
+    }
+    if (!(res = malloc(i + 1 - (count * (2 - ft_intlen(sct->status))))))
+        exit(EXIT_FAILURE);
+    i = 0;
+    count = 0;
+    while (str[i])
+    {
+        if (str[i] == "$" && str[i] == '?')
+        {
+            i++;
+        }
+        else
+            res[count] = str[i];
+        count++;
+        i++;
     }
 }
 
