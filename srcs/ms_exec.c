@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/16 10:10:45 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/20 12:08:50 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/20 15:58:12 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,10 +209,10 @@ int    ms_handler_builtin(m_sct *sct, m_env *env)
         ms_pwd(sct);
     else if (!ft_strncmp(sct->args[0], "env", 4))
         ms_env(sct);
+    else if (!ft_strncmp(sct->args[0], "export", 7))
+        ms_export(sct, &env);
     /*else if (!ft_strncmp(sct->args[0], "cd", 3))
         ms_cd(sct, env);
-    else if (!ft_strncmp(sct->args[0], "export", 7))
-        ms_export(sct, env);
     else if (!ft_strncmp(sct->args[0], "unset", 6))
         ms_unset(sct, env);
     */

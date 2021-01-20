@@ -160,3 +160,4 @@ casser un minishell :
 2) echo salut > res < xd > res2
 3) echo salut\\$?mdr
 4) echo $\?mdr
+5) export

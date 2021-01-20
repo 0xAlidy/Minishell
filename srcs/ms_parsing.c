@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/20 08:01:37 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/20 16:51:21 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,6 +282,8 @@ void     ms_handler_dollar(char *line, int *i, m_parse *parse, m_env *env)
 {
     if (line[*i + 1] == '?' && (parse->in_slash == TRUE || parse->in_squote == TRUE))
     {
+        if (parse->in_squote == TRUE)
+            ms_create_string(line, *i, parse, env);
         parse->content = ft_strjoin_free(parse->content, "$\t", 1);
         parse->save = *i + 1;
         return;
@@ -290,7 +292,6 @@ void     ms_handler_dollar(char *line, int *i, m_parse *parse, m_env *env)
         return;
     ms_create_string(line, *i, parse, env);
     parse->in_dollar = TRUE;
-    
 }
 
 void     ms_handler_quotes(char *line, int *i, m_parse *parse, m_env *env)
