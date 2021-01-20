@@ -5,14 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/19 18:59:31 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 19:10:30 by alidy            ###   ########lyon.fr   */
+/*   Created: 2021/01/20 08:13:01 by alidy             #+#    #+#             */
+/*   Updated: 2021/01/20 12:04:02 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void    ms_free_env(m_env **env)
+void    ms_free_env(m_env **lst)
 {
     m_env *temp;
     m_env *save;
@@ -22,10 +22,25 @@ void    ms_free_env(m_env **env)
     while (temp)
     {
         save = temp->next;
-        free(temp->name)
+        free(temp->name);
         free(temp->content);
         temp = save;
     }
+}
+
+void    ms_free_envp(char **envp)
+{
+    int i;
+
+    i = 0;
+    while (envp && envp[i])
+    {
+        free(envp[i]);
+        i++;
+    }
+    if (envp)
+        free(envp);
+    envp = 0;
 }
 
 void    ms_free_sct(m_sct *sct)
@@ -33,25 +48,16 @@ void    ms_free_sct(m_sct *sct)
     int i;
 
     i = 0;
-    if (sct->cmd)
-        free(sct->cmd);
     if (sct->path)
         free(sct->path);
     while (sct->args && sct->args[i])
     {
-        free(sct->args[i])
+        free(sct->args[i]);
         i++;
     }
     if (sct->args)
-        free(sct->args)
-    i = 0;
-    while (sct->envp && sct->envp[i])
-    {
-        free(sct->envp[i])
-        i++;
-    }
-    if (sct->envp)
-        free(sct->envp);
+        free(sct->args);
+    ms_free_envp(sct->envp);
 }
 
 void    ms_free_cmd(m_cmd **lst)
@@ -87,7 +93,7 @@ void    ms_free_output(m_output **lst)
     }
 }
 
-void    ms_free_args(m_arg **args)
+void    ms_free_args(m_arg **lst)
 {
     m_arg *temp;
     m_arg *save;

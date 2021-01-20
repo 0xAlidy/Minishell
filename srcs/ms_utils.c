@@ -6,17 +6,18 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/17 09:43:56 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 19:17:23 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/20 11:57:26 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-m_sct   init_sct()
+m_sct   ms_init_sct()
 {
     m_sct sct;
 
     sct.status = 0;
+    sct.envp = 0;
     sct.saved_stdout = -1;
     sct.saved_stdin = -1;
     return (sct);
@@ -85,7 +86,7 @@ char    *ms_current_folder(void)
 	return (res);
 }
 
-void    prompt(void)
+void    ms_prompt(void)
 {
     char *folder;
 
@@ -94,12 +95,12 @@ void    prompt(void)
     free(folder);
 }
 
-void    signal_handler(int signum)
+void    ms_signal_handler(int signum)
 {
     if (signum == SIGINT)
     {
         ft_printf("\n");
-        prompt();
+        ms_prompt();
     }
 }
 
@@ -125,3 +126,18 @@ char *ms_get_env(char **env, char *key)
     return (ft_strdup(""));
 }
 
+int     ms_indexchr(char *s, int c)
+{
+	int i;
+
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == c)
+			return (i);
+		i++;
+	}
+	if (s[i] == c)
+		return (i);
+	return (-1);
+}

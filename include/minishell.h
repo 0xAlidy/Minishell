@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/05 21:59:37 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 19:07:35 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/20 12:01:16 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ typedef struct      s_sct
 {
     int             status;
     int             in_pipe;
-    char            *cmd;
+    int             in_fork;
     char            **args;
     char            *path;
     char            **envp;
@@ -92,19 +92,31 @@ typedef struct      s_sct
 }                   m_sct;
 
 char                *ms_get_env(char **env, char *key);
-char                *ms_current_folder();
-m_cmd               *ms_set_commands(char *line, m_env *env);
-int                 ms_set_command(char *line, int i, m_cmd *command, m_env *env);
+m_env               *ms_new_env(char *name, char *content);
+void                ms_add_env(char *name, char *content, m_env **lst);
 m_env               *ms_set_env(char **tab);
 char                *ms_search_env(char *str, m_env **lst);
+char                *ms_current_folder();
+m_sct               ms_init_sct();
+char                *ms_minitrim(char *str);
+int                 ms_indexchr(char *s, int c);
+void                ms_prompt(void);
+void                ms_signal_handler(int signum);
+m_cmd               *ms_set_commands(char *line, m_env *env);
+int                 ms_set_command(char *line, int i, m_cmd *command, m_env *env);
 void                ms_exit_shell(char *str, int exit_status, m_sct *sct);
 void                ms_exec_simple_command(m_sct *sct, m_cmd *command, m_env *env);
 void                ms_exec_commands(m_sct *sct, m_cmd **commands, m_env *env);
 void                ms_echo(m_sct *sct);
 void                ms_pwd(m_sct *sct);
+void                ms_env(m_sct *sct);
+void                ms_export(m_sct *sct, m_env **env);
 void                ms_free_cmd(m_cmd **lst);
 void                ms_free_sct(m_sct *sct);
-void                ms_free_env(m_env *env);
+void                ms_free_env(m_env **lst);
+void                ms_free_args(m_arg **lst);
+void                ms_free_output(m_output **lst);
+void                ms_free_envp(char **envp);
 
 
 #endif

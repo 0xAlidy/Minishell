@@ -1,61 +1,67 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   execution.c                                        :+:      :+:    :+:   */
+/*   ms_exec.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/16 10:10:45 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 18:42:06 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/20 12:08:50 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void    search_path(m_sct *sct, m_env *env)
+int     ms_test_path(char *path)
+{
+    struct stat buf;
+    
+    if (stat(path, &buf) == 0)
+    {
+            if (S_ISDIR(buf.st_mode))
+            {
+                ft_printf("%s: is a directory\n", path); 
+                return (-1);
+            }
+            if (S_ISREG(buf.st_mode))
+                return TRUE;
+    }
+    return FALSE;
+}
+char   *ms_search_path(m_sct *sct)
 {
     int i;
     int save;
     char *current_path;
-    struct stat buf;
     
     i = 0;
     save = 0;
     current_path = 0;
-    sct->path = search_env("PATH", &env);
+    ft_printf("PATH: %s\n", sct->path);
     while (sct->path[i])
     {
         save = i;
-        while (sct->path[i] != ':') 
+        while (sct->path[i] && sct->path[i] != ':') 
             i++;
-        current_path = ft_substr(sct->path, save, i);
+        current_path = ft_substr(sct->path, save, i - save);
         if (sct->path[i - 1] != '/')
             current_path = ft_strjoin_free(current_path, "/", 1);
-        current_path = ft_strjoin_free(current_path, sct->cmd, 1);
-        if (stat(sct->path, &buf) == 0)
-        {
-            /*if (S_ISDIR(buf.t.mod))
-            {
-                ft_printf("%s is a directory\n", sct->path);
-                exit(1);
-            }*/
-            if (S_ISREG(buf.st_mode))
-            {
-                free(sct->path);
-                sct->path = 0;
-                sct->path = current_path;
-                return;
-            }
+        current_path = ft_strjoin_free(current_path, sct->args[0], 1);
+        if (ms_test_path(current_path) != TRUE)
             free(current_path);
+        else
+        {
+            free(sct->path);
+            return (current_path);
         }
-        i++; 
+        if (sct->path[i])
+            i++;
     }
     errno = ENOENT; // command not found
-    free(sct->path);
-    sct->path = 0;
+    return (0);
 }
 
-void    reset_fd(m_sct *sct, int check)
+void    ms_reset_fd(m_sct *sct, int check)
 {
     if (sct->saved_stdout != -1 && (check == 1 || check == 3))
     {
@@ -71,7 +77,7 @@ void    reset_fd(m_sct *sct, int check)
     }
 }
 
-void    set_redirections(m_sct *sct, m_cmd *command)
+void    ms_set_redirections(m_sct *sct, m_cmd *command)
 {
     m_output    *temp;
     int         fd;
@@ -81,11 +87,11 @@ void    set_redirections(m_sct *sct, m_cmd *command)
     {
         if (temp->type == 1)
         {
-            reset_fd(sct, 2);
+            ms_reset_fd(sct, 2);
             sct->saved_stdin = dup(STDIN_FILENO);
             if ((fd = open(temp->content, O_RDONLY)) == -1)
             {
-                reset_fd(sct, 3);
+                ms_reset_fd(sct, 3);
                 ft_printf("%s: %s\n", temp->content, strerror(errno));
                 exit(EXIT_FAILURE);
             }
@@ -94,7 +100,7 @@ void    set_redirections(m_sct *sct, m_cmd *command)
         }
         if (temp->type == 2)
         {
-            reset_fd(sct, 1);
+            ms_reset_fd(sct, 1);
             sct->saved_stdout = dup(STDOUT_FILENO);
             if (!(fd = open(temp->content, O_WRONLY | O_CREAT | O_TRUNC,
 			S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))
@@ -104,7 +110,7 @@ void    set_redirections(m_sct *sct, m_cmd *command)
         }
         else
         {
-            reset_fd(sct, 1);
+            ms_reset_fd(sct, 1);
             sct->saved_stdout = dup(STDOUT_FILENO);
             if (!(fd = open(temp->content, O_WRONLY | O_CREAT | O_APPEND
 			| S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))
@@ -117,14 +123,15 @@ void    set_redirections(m_sct *sct, m_cmd *command)
  
 }
 
-void    set_envp(m_sct *sct, m_env **env)
+void    ms_set_envp(m_sct *sct, m_env **env)
 {
     int     len;
     m_env   *temp;
 
     temp = *env;
     len = 0;
-    while (temp->next)
+    ms_free_envp(sct->envp);
+    while (temp)
     {
         len++;
         temp = temp->next;
@@ -134,23 +141,24 @@ void    set_envp(m_sct *sct, m_env **env)
     sct->envp[len] = 0;
     temp = *env;
     len = 0;
-    while (temp->next)
+    while (temp)
     {
         sct->envp[len] = ft_strdup(temp->name);
         sct->envp[len] = ft_strjoin_free(sct->envp[len], "=", 1);
-        sct->envp[len] = ft_strdup(temp->content);
+        sct->envp[len] =ft_strjoin_free(sct->envp[len], temp->content, 1);
+        len++;
         temp = temp->next;
     }
 }
 
-void    transform_args(m_sct *sct, m_arg **args)
+void    ms_transform_args(m_sct *sct, m_arg **args)
 {
     int     len;
     m_arg   *temp;
 
     temp = *args;
     len = 0;
-    while (temp->next)
+    while (temp)
     {
         len++;
         temp = temp->next;
@@ -164,50 +172,51 @@ void    transform_args(m_sct *sct, m_arg **args)
     {
         temp->content = ft_replace(temp->content, "$?", ft_itoa(sct->status), 1);
         temp->content = ft_replace(temp->content, "\t", "", 1);
-        if (len == 0)
-            sct->cmd = ft_strdup(temp->content); // set cmd
-        else
-            sct->args[len - 1] = ft_strdup(temp->content);
+        sct->args[len] = ft_strdup(temp->content);
         len++;
         temp = temp->next;
     }
 }
 
-void    exec_fork(m_sct *sct, m_cmd *command, m_env *env)
+void    ms_exec_fork(m_sct *sct, m_cmd *command, m_env *env)
 {
     pid_t pid;
     
     if ((pid = fork()) == -1)
-        ft_exit_shell(0, EXIT_FAILURE, sct);
+        ms_exit_shell(0, EXIT_FAILURE, sct);
     else if (pid == 0)
     {
-        exec_simple_command(sct, command, env);
-        ft_exit_shell(0, EXIT_SUCCESS, sct);
+        sct->in_fork = TRUE;
+        ms_exec_simple_command(sct, command, env);
+        ms_exit_shell(0, EXIT_SUCCESS, sct);
     }
     else
     {
         if (wait(&sct->status) < 0)
             exit(EXIT_FAILURE); // exit + free tout
         command = command->next;
+        if (WIFEXITED(sct->status))
+            printf("exit status = %d\n", WEXITSTATUS(sct->status));
     }
 }
 
-int    handler_builtin(m_sct *sct, m_env *env)
+int    ms_handler_builtin(m_sct *sct, m_env *env)
 {
     (void)env;
-    if (!ft_strncmp(sct->cmd, "echo", 5))
-        ft_echo(sct);
-    else if (!ft_strncmp(sct->cmd, "pwd", 4))
-        ft_pwd(sct);
-    /*else if (!ft_strncmp(sct->cmd, "cd", 3))
-        ft_cd(sct, env);
-    else if (!ft_strncmp(sct->cmd, "export", 7))
-        ft_export(sct, env);
-    else if (!ft_strncmp(sct->cmd, "unset", 6))
-        ft_unset(sct, env);
-    else if (!ft_strncmp(sct->cmd, "env", 4))
-        ft_env(sct, env);*/
-    else if (!ft_strncmp(sct->cmd, "exit", 5))
+    if (!ft_strncmp(sct->args[0], "echo", 5))
+        ms_echo(sct);
+    else if (!ft_strncmp(sct->args[0], "pwd", 4))
+        ms_pwd(sct);
+    else if (!ft_strncmp(sct->args[0], "env", 4))
+        ms_env(sct);
+    /*else if (!ft_strncmp(sct->args[0], "cd", 3))
+        ms_cd(sct, env);
+    else if (!ft_strncmp(sct->args[0], "export", 7))
+        ms_export(sct, env);
+    else if (!ft_strncmp(sct->args[0], "unset", 6))
+        ms_unset(sct, env);
+    */
+    else if (!ft_strncmp(sct->args[0], "exit", 5))
         exit(EXIT_SUCCESS);
         //ft_exit(sct);
     else
@@ -215,38 +224,44 @@ int    handler_builtin(m_sct *sct, m_env *env)
     return (TRUE);
 }
 
-void    exec_simple_command(m_sct *sct, m_cmd *command, m_env *env)
+void    ms_exec_simple_command(m_sct *sct, m_cmd *command, m_env *env)
 {
-    char *path;
-
-    path = 0;
-    transform_args(sct, &(command->args));
-    if (!sct->envp)
-        set_envp(sct, &env);
-    set_redirections(sct, command);
-    if (strchr(sct->cmd, '/')) // si un chemin (error : No such file or directory)
+    ms_transform_args(sct, &(command->args));
+    ms_set_envp(sct, &env);
+    ms_set_redirections(sct, command);
+    if (strchr(sct->args[0], '/')) // si un chemin (error : No such file or directory)
     {
-        if (!sct->in_pipe)
-            exec_fork(sct, command, env);
+        if (!sct->in_pipe && !sct->in_fork)
+            ms_exec_fork(sct, command, env);
         else
-            execve(path, sct->args, sct->envp); // in pipe
+        {
+            if (ms_test_path(sct->args[0]) == 0)
+                ft_printf("%s: No such file or directory\n", sct->args[0]);
+            else
+                if (execve(sct->args[0], sct->args, sct->envp) == -1) // in pipe
+                    strerror(errno);
+        }       
     }
-    else if (handler_builtin(sct, env)) // si un built in
+    else if (ms_handler_builtin(sct, env)) // si un built in
        return;
     else // sinon chercher dans l'env
     {
-        search_path(sct, env);
-        if (!path) // commande existe pas  (error: command not found)
-            exit(EXIT_FAILURE);
-        if (!sct->in_pipe)
-            exec_fork(sct, command, env);
+        if (!sct->in_pipe && !sct->in_fork)
+            ms_exec_fork(sct, command, env);
         else
-            execve(path, sct->args, sct->envp); // in pipe
-        free(path);
+        {
+            sct->path = ms_search_env("PATH", &env);
+            sct->path = ms_search_path(sct);
+            if (execve(sct->path, sct->args, sct->envp) == -1)
+                strerror(errno);
+            free(sct->path);
+            sct->path = 0;
+        }
+        
     }   
 }
 
-void    exec_pipe(m_sct *sct, m_cmd *command, m_env *env)
+void    ms_exec_pipe(m_sct *sct, m_cmd *command, m_env *env)
 {
     int     pipefd[2];
 	pid_t   pid;
@@ -258,17 +273,17 @@ void    exec_pipe(m_sct *sct, m_cmd *command, m_env *env)
     while (command->pipe)
     {
         if (pipe(pipefd) == -1)
-            ft_exit_shell(0, EXIT_FAILURE, sct);
+            ms_exit_shell(0, EXIT_FAILURE, sct);
         if ((pid = fork()) == -1)
-            ft_exit_shell(0, EXIT_FAILURE, sct);
+            ms_exit_shell(0, EXIT_FAILURE, sct);
         else if (pid == 0)
         {
             dup2(save_fd, 0); //change the input according to the old one 
             if (command->next)
                 dup2(pipefd[1], 1);
             close(pipefd[0]);
-            exec_simple_command(sct, command, env);
-            ft_exit_shell(0, EXIT_SUCCESS, sct);
+            ms_exec_simple_command(sct, command, env);
+            ms_exit_shell(0, EXIT_SUCCESS, sct);
         }
         else
         {
@@ -283,24 +298,25 @@ void    exec_pipe(m_sct *sct, m_cmd *command, m_env *env)
     }
 }
 
-void    exec_commands(m_sct *sct, m_cmd **commands, m_env *env)
+void    ms_exec_commands(m_sct *sct, m_cmd **commands, m_env *env)
 {
     m_cmd   *command;
 
     command = *commands;
     while (command)
     {
+        sct->in_fork = FALSE;
         if (command->pipe)
         {
             sct->in_pipe = TRUE;
-            exec_pipe(sct, command, env);
+            ms_exec_pipe(sct, command, env);
         }
         else
         {
             sct->in_pipe = FALSE;
-            exec_simple_command(sct, command, env);
+            ms_exec_simple_command(sct, command, env);
         }
-        reset_fd(sct, 3);
+        ms_reset_fd(sct, 3);
         command = command->next;
     }
 }
