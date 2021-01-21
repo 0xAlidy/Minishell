@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/16 10:10:45 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/20 15:58:12 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/21 13:20:16 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ char   *ms_search_path(m_sct *sct)
     i = 0;
     save = 0;
     current_path = 0;
-    ft_printf("PATH: %s\n", sct->path);
     while (sct->path[i])
     {
         save = i;
@@ -65,13 +64,13 @@ void    ms_reset_fd(m_sct *sct, int check)
 {
     if (sct->saved_stdout != -1 && (check == 1 || check == 3))
     {
-        dup2(sct->saved_stdout, 1);
+        dup2(sct->saved_stdout, STDOUT_FILENO);
         close(sct->saved_stdout);
         sct->saved_stdout = -1;
     }   
     if (sct->saved_stdin != -1 && (check == 2 || check == 3))
     {
-        dup2(sct->saved_stdin, 0);
+        dup2(sct->saved_stdin, STDIN_FILENO);
         close(sct->saved_stdin);
         sct->saved_stdin = -1;
     }
@@ -86,19 +85,19 @@ void    ms_set_redirections(m_sct *sct, m_cmd *command)
     while (temp)
     {
         if (temp->type == 1)
-        {
+        { 
             ms_reset_fd(sct, 2);
             sct->saved_stdin = dup(STDIN_FILENO);
             if ((fd = open(temp->content, O_RDONLY)) == -1)
             {
                 ms_reset_fd(sct, 3);
                 ft_printf("%s: %s\n", temp->content, strerror(errno));
-                exit(EXIT_FAILURE);
+                return;
             }
             dup2(fd, STDIN_FILENO); // stdin
             close(fd);
         }
-        if (temp->type == 2)
+        else if (temp->type == 2)
         {
             ms_reset_fd(sct, 1);
             sct->saved_stdout = dup(STDOUT_FILENO);
@@ -112,15 +111,14 @@ void    ms_set_redirections(m_sct *sct, m_cmd *command)
         {
             ms_reset_fd(sct, 1);
             sct->saved_stdout = dup(STDOUT_FILENO);
-            if (!(fd = open(temp->content, O_WRONLY | O_CREAT | O_APPEND
-			| S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))
+            if (!(fd = open(temp->content, O_WRONLY | O_CREAT | O_APPEND,
+			S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))
                 exit(EXIT_FAILURE); //erreur
-            dup2(fd, 1); // stdout
+            dup2(fd, STDOUT_FILENO); // stdout
             close(fd);
         }
         temp = temp->next;
     }
- 
 }
 
 void    ms_set_envp(m_sct *sct, m_env **env)
@@ -196,7 +194,7 @@ void    ms_exec_fork(m_sct *sct, m_cmd *command, m_env *env)
             exit(EXIT_FAILURE); // exit + free tout
         command = command->next;
         if (WIFEXITED(sct->status))
-            printf("exit status = %d\n", WEXITSTATUS(sct->status));
+            ft_printf("exit status = %d\n", WEXITSTATUS(sct->status));
     }
 }
 
@@ -211,10 +209,11 @@ int    ms_handler_builtin(m_sct *sct, m_env *env)
         ms_env(sct);
     else if (!ft_strncmp(sct->args[0], "export", 7))
         ms_export(sct, &env);
+    else if (!ft_strncmp(sct->args[0], "unset", 6))
+        ms_unset(sct, &env);
     /*else if (!ft_strncmp(sct->args[0], "cd", 3))
         ms_cd(sct, env);
-    else if (!ft_strncmp(sct->args[0], "unset", 6))
-        ms_unset(sct, env);
+    
     */
     else if (!ft_strncmp(sct->args[0], "exit", 5))
         exit(EXIT_SUCCESS);
@@ -261,7 +260,7 @@ void    ms_exec_simple_command(m_sct *sct, m_cmd *command, m_env *env)
     }   
 }
 
-void    ms_exec_pipe(m_sct *sct, m_cmd *command, m_env *env)
+void    ms_exec_pipe(m_sct *sct, m_cmd **command, m_env *env)
 {
     int     pipefd[2];
 	pid_t   pid;
@@ -270,7 +269,7 @@ void    ms_exec_pipe(m_sct *sct, m_cmd *command, m_env *env)
     
     save_fd = 0;
     last = FALSE;
-    while (command->pipe)
+    while (*command && ((*command)->pipe || last == TRUE))
     {
         if (pipe(pipefd) == -1)
             ms_exit_shell(0, EXIT_FAILURE, sct);
@@ -279,11 +278,11 @@ void    ms_exec_pipe(m_sct *sct, m_cmd *command, m_env *env)
         else if (pid == 0)
         {
             dup2(save_fd, 0); //change the input according to the old one 
-            if (command->next)
+            if ((*command)->next)
                 dup2(pipefd[1], 1);
             close(pipefd[0]);
-            ms_exec_simple_command(sct, command, env);
-            ms_exit_shell(0, EXIT_SUCCESS, sct);
+            ms_exec_simple_command(sct, *command, env);
+            ms_exit_shell(0, sct->status, sct);
         }
         else
         {
@@ -291,9 +290,11 @@ void    ms_exec_pipe(m_sct *sct, m_cmd *command, m_env *env)
                 exit(EXIT_FAILURE); // exit + free tout
             close(pipefd[1]);
             save_fd = pipefd[0]; //save the input for the next command
-            command = command->next;
-            if (last == FALSE && !command->pipe)
+            (*command) = (*command)->next;
+            if (last == FALSE && !(*command)->pipe)
                 last = TRUE;
+            else
+                last = FALSE;
         }
     }
 }
@@ -309,7 +310,7 @@ void    ms_exec_commands(m_sct *sct, m_cmd **commands, m_env *env)
         if (command->pipe)
         {
             sct->in_pipe = TRUE;
-            ms_exec_pipe(sct, command, env);
+            ms_exec_pipe(sct, &command, env);
         }
         else
         {
@@ -317,6 +318,7 @@ void    ms_exec_commands(m_sct *sct, m_cmd **commands, m_env *env)
             ms_exec_simple_command(sct, command, env);
         }
         ms_reset_fd(sct, 3);
-        command = command->next;
+        if (command)
+            command = command->next;
     }
 }

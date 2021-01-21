@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/20 16:51:21 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/21 12:12:49 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -417,6 +417,6 @@ m_cmd  *ms_set_commands(char *line, m_env *env)
         if (line[i])
             i++;
     }
-    ms_debug_struct(&commands);
+    //ms_debug_struct(&commands);
     return (commands);
 }

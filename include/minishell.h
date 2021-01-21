@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/05 21:59:37 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/20 12:01:16 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/21 13:17:59 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,7 @@ void                ms_echo(m_sct *sct);
 void                ms_pwd(m_sct *sct);
 void                ms_env(m_sct *sct);
 void                ms_export(m_sct *sct, m_env **env);
+void                ms_unset(m_sct *sct, m_env **env);
 void                ms_free_cmd(m_cmd **lst);
 void                ms_free_sct(m_sct *sct);
 void                ms_free_env(m_env **lst);

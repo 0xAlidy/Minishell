@@ -6,7 +6,7 @@
 #    By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/02 17:12:28 by alidy             #+#    #+#              #
-#    Updated: 2021/01/20 15:58:29 by alidy            ###   ########lyon.fr    #
+#    Updated: 2021/01/21 13:18:10 by alidy            ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,6 +27,7 @@ SRCS_NAME		=		minishell.c 	\
 						ms_free.c 		\
 						ms_env_utils.c 	\
 						ms_export.c 	\
+						ms_unset.c 		\
 
 						
 OBJS			=		${SRCS:.c=.o}

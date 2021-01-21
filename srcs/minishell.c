@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 10:54:17 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/20 08:11:09 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/21 12:58:49 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ void    minishell(int fd, char **e)
         //signal(SIGQUIT, SIG_IGN);
         ms_prompt();
         get_next_line(fd, &input);
+        // gerer ctrl-d dans gnl , signals dans les fork modifie
         input = ms_minitrim(input);
         commands = ms_set_commands(input, env);
         if (commands && commands->args) // s'il y a une commande
