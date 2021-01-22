@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/16 10:10:45 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/21 13:20:16 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/22 13:03:41 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,13 +177,15 @@ void    ms_transform_args(m_sct *sct, m_arg **args)
 }
 
 void    ms_exec_fork(m_sct *sct, m_cmd *command, m_env *env)
-{
+{ 
     pid_t pid;
     
+    ms_signal_handler(2);
     if ((pid = fork()) == -1)
         ms_exit_shell(0, EXIT_FAILURE, sct);
     else if (pid == 0)
     {
+             
         sct->in_fork = TRUE;
         ms_exec_simple_command(sct, command, env);
         ms_exit_shell(0, EXIT_SUCCESS, sct);
@@ -196,11 +198,11 @@ void    ms_exec_fork(m_sct *sct, m_cmd *command, m_env *env)
         if (WIFEXITED(sct->status))
             ft_printf("exit status = %d\n", WEXITSTATUS(sct->status));
     }
+    ms_signal_handler(1);
 }
 
 int    ms_handler_builtin(m_sct *sct, m_env *env)
 {
-    (void)env;
     if (!ft_strncmp(sct->args[0], "echo", 5))
         ms_echo(sct);
     else if (!ft_strncmp(sct->args[0], "pwd", 4))
@@ -211,10 +213,8 @@ int    ms_handler_builtin(m_sct *sct, m_env *env)
         ms_export(sct, &env);
     else if (!ft_strncmp(sct->args[0], "unset", 6))
         ms_unset(sct, &env);
-    /*else if (!ft_strncmp(sct->args[0], "cd", 3))
-        ms_cd(sct, env);
-    
-    */
+    else if (!ft_strncmp(sct->args[0], "cd", 3))
+        ms_cd(sct, &env);
     else if (!ft_strncmp(sct->args[0], "exit", 5))
         exit(EXIT_SUCCESS);
         //ft_exit(sct);

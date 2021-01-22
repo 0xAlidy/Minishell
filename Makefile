@@ -6,7 +6,7 @@
 #    By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/02 17:12:28 by alidy             #+#    #+#              #
-#    Updated: 2021/01/21 13:18:10 by alidy            ###   ########lyon.fr    #
+#    Updated: 2021/01/22 13:02:53 by alidy            ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,9 @@ LIBS			=		libft/libft.a
 SRC_PATH		=		srcs
 
 SRCS_NAME		=		minishell.c 	\
+						ms_gnl_eof.c 	\
 						ms_parsing.c 	\
+						ms_signals.c 	\
 						ms_env.c 		\
 						ms_utils.c		\
 						ms_exec.c 		\
@@ -28,6 +30,7 @@ SRCS_NAME		=		minishell.c 	\
 						ms_env_utils.c 	\
 						ms_export.c 	\
 						ms_unset.c 		\
+						ms_cd.c 		\
 
 						
 OBJS			=		${SRCS:.c=.o}

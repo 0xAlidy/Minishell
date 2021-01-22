@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 09:54:32 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/19 18:25:22 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/22 11:43:07 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,9 @@ t_gnl				*recup_maillon(int fd, t_gnl **liste);
 int					rm_lst(int fd, t_gnl **lst);
 char				*ft_remove(char *current);
 int					get_next_line(int fd, char **line);
+char				*ft_gnl_strjoin(char *s1, char *s2, int limit);
+char				*ft_gnl_strdup(char *s1);
+int					ft_gnl_strchr(char *s, int c);
 size_t				ft_strlen(const char *s);
 int					ft_atoi(const char *str);
 void				ft_putchar_fd(char c, int fd);

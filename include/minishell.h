@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/05 21:59:37 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/21 13:17:59 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/22 12:51:58 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,17 +91,19 @@ typedef struct      s_sct
     int             saved_stdin;
 }                   m_sct;
 
+int		            ms_gnl_eof(int fd, char **line);
 char                *ms_get_env(char **env, char *key);
 m_env               *ms_new_env(char *name, char *content);
 void                ms_add_env(char *name, char *content, m_env **lst);
 m_env               *ms_set_env(char **tab);
 char                *ms_search_env(char *str, m_env **lst);
+int                 ms_modify_env(m_env **env, char *name, char *content);
 char                *ms_current_folder();
 m_sct               ms_init_sct();
 char                *ms_minitrim(char *str);
 int                 ms_indexchr(char *s, int c);
 void                ms_prompt(void);
-void                ms_signal_handler(int signum);
+void                ms_signal_handler(int type);
 m_cmd               *ms_set_commands(char *line, m_env *env);
 int                 ms_set_command(char *line, int i, m_cmd *command, m_env *env);
 void                ms_exit_shell(char *str, int exit_status, m_sct *sct);
@@ -112,6 +114,7 @@ void                ms_pwd(m_sct *sct);
 void                ms_env(m_sct *sct);
 void                ms_export(m_sct *sct, m_env **env);
 void                ms_unset(m_sct *sct, m_env **env);
+void                ms_cd(m_sct *sct, m_env **env);
 void                ms_free_cmd(m_cmd **lst);
 void                ms_free_sct(m_sct *sct);
 void                ms_free_env(m_env **lst);

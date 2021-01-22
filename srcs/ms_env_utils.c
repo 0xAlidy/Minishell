@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/15 10:24:55 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/20 12:04:10 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/22 10:29:48 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ char        *ms_search_env(char *str, m_env **lst)
     {
         while (temp)
         {
-            if (!ft_strncmp(str, temp->name,ft_strlen(str)))
+            if (!ft_strncmp(str, temp->name, ft_strlen(str) + 1))
                 return (ft_strdup(temp->content)); 
             temp = temp->next;
         }

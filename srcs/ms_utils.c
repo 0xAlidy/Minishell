@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/17 09:43:56 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/20 11:57:26 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/22 12:53:20 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,15 +93,6 @@ void    ms_prompt(void)
     folder = ms_current_folder();
     ft_printf("\033[1;34m%s\033[0m $> ", folder);
     free(folder);
-}
-
-void    ms_signal_handler(int signum)
-{
-    if (signum == SIGINT)
-    {
-        ft_printf("\n");
-        ms_prompt();
-    }
 }
 
 char *ms_get_env(char **env, char *key)

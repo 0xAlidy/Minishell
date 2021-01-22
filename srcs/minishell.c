@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 10:54:17 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/21 12:58:49 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/22 12:51:49 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,22 +22,22 @@ void    minishell(int fd, char **e)
     env = ms_set_env(e);
     while (42)
     {
-        signal(SIGINT, ms_signal_handler);
-        //signal(SIGQUIT, SIG_IGN);
+        ms_signal_handler(1);
         ms_prompt();
-        get_next_line(fd, &input);
-        // gerer ctrl-d dans gnl , signals dans les fork modifie
+        if (ms_gnl_eof(fd, &input) == -2)
+        {
+            ft_printf("exit\n");
+            exit(EXIT_SUCCESS);
+        }
         input = ms_minitrim(input);
         commands = ms_set_commands(input, env);
+        free(input);
         if (commands && commands->args) // s'il y a une commande
         {
             sct = ms_init_sct();
             ms_exec_commands(&sct, &commands, env);
         }
     }
-    //free_minishell(env, commands);
-    if (fd)
-        close(fd);
 }
 
 int     main(int argc, char **argv, char **env)
@@ -46,14 +46,8 @@ int     main(int argc, char **argv, char **env)
 
     fd = 0;
     errno = 0;
-    if (argc == 1)
-        minishell(fd, env);
-    else
-    {
-        if ((fd = open(argv[1], O_RDONLY)) < 0)
-            ft_printf("Minishell: %s: %s\n", argv[1], strerror(errno));
-        else
-            minishell(fd, env);
-    }
+    (void) argc;
+    (void) argv;
+    minishell(fd, env);
     return (0);
 }
