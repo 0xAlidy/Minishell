@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 10:54:17 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/22 12:51:49 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/23 10:39:54 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,13 @@ void    minishell(int fd, char **e)
         if (ms_gnl_eof(fd, &input) == -2)
         {
             ft_printf("exit\n");
+            ms_free_env(&env);
             exit(EXIT_SUCCESS);
         }
         input = ms_minitrim(input);
         commands = ms_set_commands(input, env);
         free(input);
-        if (commands && commands->args) // s'il y a une commande
+        if (commands && commands->args)
         {
             sct = ms_init_sct();
             ms_exec_commands(&sct, &commands, env);
@@ -42,12 +43,9 @@ void    minishell(int fd, char **e)
 
 int     main(int argc, char **argv, char **env)
 {
-    int fd;
-
-    fd = 0;
-    errno = 0;
     (void) argc;
     (void) argv;
-    minishell(fd, env);
+    errno = 0;
+    minishell(0, env);
     return (0);
 }

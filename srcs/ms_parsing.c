@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/22 21:02:00 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/23 11:33:04 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,14 +190,16 @@ void    ms_add_arg(char *content, m_arg **lst)
 int		ms_is_char_printable(int c)
 {
 	if (c >= 33 && c <= 126)
-		return (1);
-	return (0);
+		return (TRUE);
+	return (FALSE);
 }
 
-int     ms_is_empty(char *line, int i)
+int     ms_check_pipe(char *line, int i)
 {
     while (line[i])
     {
+        if (line[i] == ';' || line[i] == '|')
+            return (TRUE);
         if (ms_is_char_printable(line[i]))
             return (FALSE);
         i++;
@@ -215,7 +217,7 @@ void    ms_create_string(char *line, int i, m_parse *parse, m_env *env)
     (void)line;
     (void)env;
     //ft_printf("i : %d save : %d content : %s\n", i, parse->save, parse->content);
-    if (i - parse->save > 0)  // > 1 ?
+    if (i - parse->save > - 1)  // > 1 ?
     {
         str = ft_substr(line, parse->save, i - parse->save);
         if (parse->in_dollar == TRUE)
@@ -231,6 +233,8 @@ void    ms_create_string(char *line, int i, m_parse *parse, m_env *env)
             if (!temp)
                 return;
             str = temp;
+            if (line[i] == '/')
+                str = ft_strjoin_free(str, "/", 1);
             parse->in_dollar = FALSE;
         }
         parse->content = ft_strjoin_free(parse->content, str, 3);
@@ -239,7 +243,7 @@ void    ms_create_string(char *line, int i, m_parse *parse, m_env *env)
     parse->save = i + 1;
 }
 
-void    ms_handler_slash(char *line, int *i, m_parse *parse, m_env *env)
+int    ms_handler_slash(char *line, int *i, m_parse *parse, m_env *env)
 {
     if (line[*i + 1])
         parse->in_slash = TRUE;
@@ -256,10 +260,7 @@ void    ms_handler_slash(char *line, int *i, m_parse *parse, m_env *env)
             ms_create_string(line, *i, parse, env);
             parse->save = ++(*i);
             if (!ms_is_char_printable(line[*i]))
-            {
-                ft_printf("Error : multiligne");
-                exit(EXIT_FAILURE);
-            }
+                return (ms_free_parse(-1, "backslash", parse));
         }
     }
     else if (parse->in_dquote == TRUE)
@@ -276,6 +277,7 @@ void    ms_handler_slash(char *line, int *i, m_parse *parse, m_env *env)
             (*i)++;
         }
     }
+    return (TRUE);
 }
 
 void     ms_handler_dollar(char *line, int *i, m_parse *parse, m_env *env)
@@ -322,8 +324,13 @@ int    ms_set_content(char *line, int i, m_parse *parse, m_cmd *cmd, m_env *env)
     || (line[i] != '|' && line[i] != ';' && line[i] != ' ' && line[i] != '<' && line[i] != '>')))
     {
         parse->in_slash = FALSE;
+        if (line[i] == '/' && parse->in_dollar == TRUE)
+            ms_create_string(line, i, parse, env);
         if (line[i] == '\\')
-            ms_handler_slash(line, &i, parse, env);
+        {
+            if ((ms_handler_slash(line, &i, parse, env)) == -1)
+                return (-1);
+        }
         else if (line[i] == '\'' || line[i] == '"')
             ms_handler_quotes(line, &i, parse, env);
         if (line[i] == '$')
@@ -333,10 +340,7 @@ int    ms_set_content(char *line, int i, m_parse *parse, m_cmd *cmd, m_env *env)
             i++;
     }
     if (parse->in_squote == TRUE || parse->in_dquote == TRUE)
-    {
-        ft_printf("ERREUR: QUOTES"); //ERREUR
-        exit(EXIT_FAILURE);
-    }
+        return (ms_free_parse(-1, "quotes", parse));
     ms_create_string(line, i, parse, env);
     if (parse->content)
     {
@@ -359,19 +363,16 @@ int     ms_set_command(char *line, int i, m_cmd *command, m_env *env)
     parse = ms_init_parse();
     while (line[i] && line[i] != '|' && line[i] != ';')
     {
-        if (line[i] != '>' && line[i] != '<' && line[i] != ' ') // dans un arg
-            i = ms_set_content(line, i, &parse, command, env);
-        if (line[i] == '>' || line[i] == '<') // set redirection
+        if (line[i] != '>' && line[i] != '<' && line[i] != ' ')
+            if ((i = ms_set_content(line, i, &parse, command, env)) == -1)
+                return (-1);
+        if (line[i] == '>' || line[i] == '<')
         {
-            if (parse.type_output) // erreur de type echo < <
-            {
-                ft_printf("Erreur: redirection");
-                exit(EXIT_FAILURE);
-            }
+            if (parse.type_output)
+                return (ms_free_parse(-1, "redirection", &parse));
             if (line[i] == '>')
             {
                 parse.type_output = 2;
-                
                 if (line[i + 1] == '>')
                 {
                     parse.type_output = 3;
@@ -385,22 +386,23 @@ int     ms_set_command(char *line, int i, m_cmd *command, m_env *env)
             i++;
     }
     if (parse.type_output)
-    {
-        ft_printf("ERROR : Redirection");
-        exit(EXIT_FAILURE);
-    }
+        return (ms_free_parse(-1, "redirection", &parse));
     if (line[i] == '|')
     {
         command->pipe = TRUE;
-        if (ms_is_empty(line, i + 1))
-        {
-            ft_printf("ERREUR: pipe : multiligne");
-            exit(EXIT_FAILURE);
-        }
+        if (ms_check_pipe(line, i + 1))
+            return (ms_free_parse(-1, "pipe", &parse));
     }
-    if (parse.content)
-        free(parse.content);
-    return (i);
+    return (ms_free_parse(i, 0, &parse));
+}
+
+int     ms_free_parse(int res, char *msg, m_parse *parse)
+{
+    if (parse->content)
+        free(parse->content);
+    if (msg)
+        ft_printf("Minishell: %s: syntax error\n", msg);
+    return (res);
 }
 
 m_cmd  *ms_set_commands(char *line, m_env *env)
@@ -414,11 +416,16 @@ m_cmd  *ms_set_commands(char *line, m_env *env)
     while (line[i])
     {
         command = ms_new_command();
-        i = ms_set_command(line, i, command, env);
+        if ((i = ms_set_command(line, i, command, env) ) == - 1)
+        {
+            ms_free_cmd(&command);
+            ms_free_cmd(&commands);
+            return (0);
+        }
         ms_add_command(&commands, command);
         if (line[i])
             i++;
     }
-    ms_debug_struct(&commands);
+    //ms_debug_struct(&commands);
     return (commands);
 }

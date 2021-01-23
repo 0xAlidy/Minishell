@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/05 21:59:37 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/22 12:51:58 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/23 13:26:45 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,11 +84,13 @@ typedef struct      s_sct
     int             status;
     int             in_pipe;
     int             in_fork;
+    int             err;
     char            **args;
     char            *path;
     char            **envp;
     int             saved_stdout;
     int             saved_stdin;
+    m_cmd           **saved_cmds;
 }                   m_sct;
 
 int		            ms_gnl_eof(int fd, char **line);
@@ -115,12 +117,13 @@ void                ms_env(m_sct *sct);
 void                ms_export(m_sct *sct, m_env **env);
 void                ms_unset(m_sct *sct, m_env **env);
 void                ms_cd(m_sct *sct, m_env **env);
+void                ms_exit(m_sct *sct, m_env *env);
 void                ms_free_cmd(m_cmd **lst);
 void                ms_free_sct(m_sct *sct);
 void                ms_free_env(m_env **lst);
 void                ms_free_args(m_arg **lst);
 void                ms_free_output(m_output **lst);
 void                ms_free_envp(char **envp);
-
+int                 ms_free_parse(int res, char *msg, m_parse *parse);
 
 #endif

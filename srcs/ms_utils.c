@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/17 09:43:56 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/22 12:53:20 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/23 13:26:32 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,10 @@ m_sct   ms_init_sct()
 {
     m_sct sct;
 
+    sct.path = 0;
     sct.status = 0;
     sct.envp = 0;
+    sct.err = 0;
     sct.saved_stdout = -1;
     sct.saved_stdin = -1;
     return (sct);
@@ -25,16 +27,17 @@ m_sct   ms_init_sct()
 
 void    ms_exit_shell(char *str, int exit_status, m_sct *sct)
 {
-    if (exit_status > 0)
+    /*if (exit_status > 0)
     {
         if (str)
             ft_printf("Minishell: %s : %s", str, strerror(errno));
         else
             ft_printf("Minishell: %s", strerror(errno));
-    }
-    errno = 0; // a voir
-    sct->status = exit_status;
-    exit(sct->status);
+    }*/
+    (void)str;
+    (void)sct;
+    sct->err = errno;
+    exit(exit_status);
 }
 
 char    *ms_minitrim(char *str)

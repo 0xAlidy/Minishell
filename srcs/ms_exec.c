@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/16 10:10:45 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/22 13:03:41 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/23 13:45:29 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,9 +74,10 @@ void    ms_reset_fd(m_sct *sct, int check)
         close(sct->saved_stdin);
         sct->saved_stdin = -1;
     }
+    
 }
 
-void    ms_set_redirections(m_sct *sct, m_cmd *command)
+int   ms_set_redirections(m_sct *sct, m_cmd *command)
 {
     m_output    *temp;
     int         fd;
@@ -91,8 +92,9 @@ void    ms_set_redirections(m_sct *sct, m_cmd *command)
             if ((fd = open(temp->content, O_RDONLY)) == -1)
             {
                 ms_reset_fd(sct, 3);
-                ft_printf("%s: %s\n", temp->content, strerror(errno));
-                return;
+                ft_printf("Minishell : %s: %s\n", temp->content, strerror(errno));
+                sct->status = 1;
+                return (-1);
             }
             dup2(fd, STDIN_FILENO); // stdin
             close(fd);
@@ -119,6 +121,7 @@ void    ms_set_redirections(m_sct *sct, m_cmd *command)
         }
         temp = temp->next;
     }
+    return (TRUE);
 }
 
 void    ms_set_envp(m_sct *sct, m_env **env)
@@ -185,10 +188,9 @@ void    ms_exec_fork(m_sct *sct, m_cmd *command, m_env *env)
         ms_exit_shell(0, EXIT_FAILURE, sct);
     else if (pid == 0)
     {
-             
         sct->in_fork = TRUE;
         ms_exec_simple_command(sct, command, env);
-        ms_exit_shell(0, EXIT_SUCCESS, sct);
+        ms_exit_shell(0, sct->status, sct);
     }
     else
     {
@@ -196,7 +198,10 @@ void    ms_exec_fork(m_sct *sct, m_cmd *command, m_env *env)
             exit(EXIT_FAILURE); // exit + free tout
         command = command->next;
         if (WIFEXITED(sct->status))
-            ft_printf("exit status = %d\n", WEXITSTATUS(sct->status));
+        {
+            ft_printf("strerror : %s\n", strerror(errno));
+            sct->status = WEXITSTATUS(sct->status);
+        }
     }
     ms_signal_handler(1);
 }
@@ -216,8 +221,7 @@ int    ms_handler_builtin(m_sct *sct, m_env *env)
     else if (!ft_strncmp(sct->args[0], "cd", 3))
         ms_cd(sct, &env);
     else if (!ft_strncmp(sct->args[0], "exit", 5))
-        exit(EXIT_SUCCESS);
-        //ft_exit(sct);
+        ms_exit(sct, env);
     else
         return (FALSE);
     return (TRUE);
@@ -227,7 +231,9 @@ void    ms_exec_simple_command(m_sct *sct, m_cmd *command, m_env *env)
 {
     ms_transform_args(sct, &(command->args));
     ms_set_envp(sct, &env);
-    ms_set_redirections(sct, command);
+    sct->status = 0;
+    if ((ms_set_redirections(sct, command)) == -1)
+        return;
     if (strchr(sct->args[0], '/')) // si un chemin (error : No such file or directory)
     {
         if (!sct->in_pipe && !sct->in_fork)
@@ -237,8 +243,7 @@ void    ms_exec_simple_command(m_sct *sct, m_cmd *command, m_env *env)
             if (ms_test_path(sct->args[0]) == 0)
                 ft_printf("%s: No such file or directory\n", sct->args[0]);
             else
-                if (execve(sct->args[0], sct->args, sct->envp) == -1) // in pipe
-                    strerror(errno);
+                execve(sct->args[0], sct->args, sct->envp);
         }       
     }
     else if (ms_handler_builtin(sct, env)) // si un built in
@@ -251,12 +256,15 @@ void    ms_exec_simple_command(m_sct *sct, m_cmd *command, m_env *env)
         {
             sct->path = ms_search_env("PATH", &env);
             sct->path = ms_search_path(sct);
-            if (execve(sct->path, sct->args, sct->envp) == -1)
-                strerror(errno);
+            if (!sct->path)
+            {
+                sct->status = 127;
+                return;
+            }
+            execve(sct->path, sct->args, sct->envp);
             free(sct->path);
             sct->path = 0;
         }
-        
     }   
 }
 
@@ -277,6 +285,7 @@ void    ms_exec_pipe(m_sct *sct, m_cmd **command, m_env *env)
             ms_exit_shell(0, EXIT_FAILURE, sct);
         else if (pid == 0)
         {
+            sct->status = 0;
             dup2(save_fd, 0); //change the input according to the old one 
             if ((*command)->next)
                 dup2(pipefd[1], 1);
@@ -288,9 +297,12 @@ void    ms_exec_pipe(m_sct *sct, m_cmd **command, m_env *env)
         {
             if (wait(&sct->status) < 0)
                 exit(EXIT_FAILURE); // exit + free tout
+            if (WIFEXITED(sct->status))
+                sct->status = WEXITSTATUS(sct->status);
             close(pipefd[1]);
             save_fd = pipefd[0]; //save the input for the next command
-            (*command) = (*command)->next;
+            if (last != TRUE)
+                (*command) = (*command)->next;
             if (last == FALSE && !(*command)->pipe)
                 last = TRUE;
             else
@@ -304,6 +316,7 @@ void    ms_exec_commands(m_sct *sct, m_cmd **commands, m_env *env)
     m_cmd   *command;
 
     command = *commands;
+    sct->saved_cmds = commands;
     while (command)
     {
         sct->in_fork = FALSE;

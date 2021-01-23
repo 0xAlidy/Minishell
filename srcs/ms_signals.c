@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/22 12:53:08 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/22 13:00:01 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/23 10:02:21 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void    ms_sigint_two()
 
 void    ms_sigquit()
 {
-    ft_printf("Quit:\n");
+    ft_printf("\nQuit: 3\n");
     signal(SIGQUIT, SIG_DFL);
 }
 
