@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 13:31:04 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/22 10:32:03 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/22 20:35:36 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,11 @@ void    ms_cd(m_sct *sct, m_env **env)
         path = ft_strjoin_free(path, "/", 1);
         path = ft_strjoin_free(path, sct->args[1], 1);
     }
-    ft_printf("path : %s\n",path);
-    if (chdir(path) == -1)
+    
+    if ((sct->status = chdir(path)) == -1)
     {
-        strerror(errno);
+        free(path);
+        ft_printf("Minishell: cd : %s: %s\n", sct->args[1], strerror(errno));
         return;
     }
     ms_modify_env(env, "OLDPWD", ms_search_env("PWD", env));

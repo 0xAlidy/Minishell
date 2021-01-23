@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/21 12:12:49 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/22 21:02:00 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,21 +296,23 @@ void     ms_handler_dollar(char *line, int *i, m_parse *parse, m_env *env)
 
 void     ms_handler_quotes(char *line, int *i, m_parse *parse, m_env *env)
 {
-    if (line[*i] == '"')
+    if (line[*i] == '"' && parse->in_squote == FALSE)
     {
         if (parse->in_dquote == TRUE)
             parse->in_dquote = FALSE;
         else
             parse->in_dquote = TRUE;
+        ms_create_string(line, *i, parse, env);
     }
-    else
-     {
+    else if (line[*i] == '\'' && parse->in_dquote == FALSE)
+    {
         if (parse->in_squote == TRUE)
             parse->in_squote = FALSE;
         else
             parse->in_squote = TRUE;
+        ms_create_string(line, *i, parse, env);
     }
-    ms_create_string(line, *i, parse, env);
+    parse->in_dollar = FALSE;
 }
 
 int    ms_set_content(char *line, int i, m_parse *parse, m_cmd *cmd, m_env *env)
@@ -417,6 +419,6 @@ m_cmd  *ms_set_commands(char *line, m_env *env)
         if (line[i])
             i++;
     }
-    //ms_debug_struct(&commands);
+    ms_debug_struct(&commands);
     return (commands);
 }

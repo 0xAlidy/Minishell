@@ -163,3 +163,10 @@ casser un minishell :
 5) export
 6) export PWD=mdr ; cd / ; env (oldpwd=mdr)
 7) cd .. ; env (PWD)
+8) echo $'HOME'
+9) echo \$HOME
+GERERERERERERER CAAAAAA
+10) cd $HOME/Bureau 
+11) export HOME= ; cd
+12) cd - 
+
