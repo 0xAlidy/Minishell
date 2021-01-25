@@ -6,44 +6,42 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/25 17:02:26 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/25 17:03:56 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
+char 		*ms_create_dollar(char *str, int i, m_parse *parse, m_env *env)
+{
+	char *res;
+
+	res = 0;
+	if (!ft_strncmp(str, "?", 1))
+    {
+        str = ft_strjoin_free("$", str, 2);
+        parse->content = ft_strjoin_free(parse->content, str, 1);
+        parse->save = i + 1;
+    }
+    else
+        res = ms_search_env(str, &env);
+	free(str);
+	return (res);
+}
 void		ms_create_string(char *line, int i, m_parse *parse, m_env *env)
 {
     char *str;
-    char *temp;
 
-    str = 0;
-    temp = 0;
-    (void)line;
-    (void)env;
-    //ft_printf("i : %d save : %d content : %s\n", i, parse->save, parse->content);  // debug
     str = ft_substr(line, parse->save, i - parse->save);
     if (parse->in_dollar == TRUE)
     {
-        if (!ft_strncmp(str, "?", 1)) // pour gerer $?
-        {
-            str = ft_strjoin_free("$", str, 2);
-            parse->content = ft_strjoin_free(parse->content, str, 1);
-            parse->save = i + 1;
-            //ft_printf("content after : %s\n", parse->content); // debug
-        }
-        else
-            temp = ms_search_env(str, &env);
-        free(str);
-        if (!temp)
+        if (!(str = ms_create_dollar(str, i, parse, env)))
             return;
-        str = temp;
         if (line[i] == '/')
             str = ft_strjoin_free(str, "/", 1);
         parse->in_dollar = FALSE;
     }
     parse->content = ft_strjoin_free(parse->content, str, 3);
-    //ft_printf("content after : %s\n", parse->content); // debug
     parse->save = i + 1;
 }
 
