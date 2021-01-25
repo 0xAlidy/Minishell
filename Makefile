@@ -6,7 +6,7 @@
 #    By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/02 17:12:28 by alidy             #+#    #+#              #
-#    Updated: 2021/01/23 10:26:03 by alidy            ###   ########lyon.fr    #
+#    Updated: 2021/01/25 16:55:05 by alidy            ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,21 +17,23 @@ LIBS			=		libft/libft.a
 
 SRC_PATH		=		srcs
 
-SRCS_NAME		=		minishell.c 	\
-						ms_gnl_eof.c 	\
-						ms_parsing.c 	\
-						ms_signals.c 	\
-						ms_env.c 		\
-						ms_utils.c		\
-						ms_exec.c 		\
-						ms_echo.c		\
-						ms_pwd.c 		\
-						ms_free.c 		\
-						ms_env_utils.c 	\
-						ms_export.c 	\
-						ms_unset.c 		\
-						ms_cd.c 		\
-						ms_exit.c 		\
+SRCS_NAME		=		minishell.c 		\
+						ms_init_parse.c		\
+						ms_parse_utils.c	\
+						ms_gnl_eof.c 		\
+						ms_parsing.c 		\
+						ms_signals.c 		\
+						ms_env.c 			\
+						ms_utils.c			\
+						ms_exec.c 			\
+						ms_echo.c			\
+						ms_pwd.c 			\
+						ms_free.c 			\
+						ms_env_utils.c 		\
+						ms_export.c 		\
+						ms_unset.c 			\
+						ms_cd.c 			\
+						ms_exit.c 			\
 
 						
 OBJS			=		${SRCS:.c=.o}

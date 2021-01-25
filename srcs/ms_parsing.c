@@ -6,208 +6,13 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/24 20:22:03 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/25 17:02:26 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-/*
 
- echo "salut mdr $path" 'test'| cat -e > text.txt
-
- commande : echo
- argument 1 : "salut mdr $path" => "salut mdr /user/alid/minishell"
- argument 2 : 'test'
- operateur : |
- commande : cat
- argument 1 : -e
- operateur : >
-
-
- \ => efface la barre et ne prete pas attention au charactere d'apres 
- '' => ecrit exactement ce qu'il y a dedans 
- "" => comme '' sauf qu'il prend en compte
-
- $ => remplace par une variable d'environnement sauf si c'est un espace apres ou qu'il y a \ avant
- \ => supprime la barre si suivi de " ou de $ sinon la laisse, suit la regle aussi avec les \
-
-
- Sans quotes :
-
- \ => efface la barre et ne prete pas attention au charactere d'apres
- $ => remplace par la valeur env sauf s' il n'y a rien apres , supprime le $ s'il y a des quotes apres
-
- Simple quotes : ecrit exactement ce qu'il y a dedans
- 
- \ => ne fait rien sauf si elle suivi de ' => ferme la quote
-
- Double quotes: ecrit exactement ce qu'il y a dedans
- 
- $ => remplace par la valeur env sauf s' il n'y a rien apres
-
- \ => desactive " et $ et \ sinon garde le \
-
-
-
- " et \ impaires => message erreur multiligne 
-*/
-
-// GERER LE CAS echo >  > ok  ne compter qu'un fichier  echo > mdr salut =====> salut mdr
-
-void    ms_debug_struct(m_cmd **cmds)
-{
-    m_cmd    *temp;
-    m_output *out;
-    m_arg   *args;
-
-    temp = *cmds;
-    if (!cmds)
-        return;
-    while (temp)
-    {
-        out = temp->output;
-        args = temp->args;
-        ft_printf("args : ");
-        while (args)
-        {
-            ft_printf("%s -> ", args->content);
-            args = args->next;
-        }
-        ft_printf("\n");
-        ft_printf("out : ");
-        while (out)
-        {
-            ft_printf("%s [%d] -> ", out->content, out->type);
-            out = out->next;
-        }
-        ft_printf("\n");
-        ft_printf("pipe: %d",temp->pipe);
-        ft_printf("\n");
-        temp = temp->next;
-    }   
-}
-
-m_parse     ms_init_parse()
-{
-    m_parse parse;
-
-    parse.save = 0;
-    parse.content = 0;
-    parse.type_output = 0;
-    parse.in_slash = FALSE;
-    parse.in_squote = FALSE;
-    parse.in_dquote = FALSE;
-    parse.in_dollar = FALSE;
-    return (parse);
-}
-
-m_output *ms_new_output(char *output, int type)
-{
-    m_output *new;
-
-    if (!(new = malloc(sizeof(m_output))))
-        exit(EXIT_FAILURE);
-    new->content = ft_strdup(output);
-    new->type = type;
-    new->next = 0;
-    return (new);
-}
-
-m_arg   *ms_new_arg(char *arg)
-{
-    m_arg *new;
-
-    if (!(new = malloc(sizeof(m_arg))))
-        exit(EXIT_FAILURE);
-    new->content = ft_strdup(arg);
-    new->next = 0;
-    return (new);
-}
-
-m_cmd  *ms_new_command()
-{
-    m_cmd *command;
-
-    if (!(command = malloc(sizeof(m_cmd))))
-        exit(EXIT_FAILURE);
-    command->args = 0;
-    command->output = 0;
-    command->pipe = FALSE;
-    command->next = 0;
-    return (command);
-}
-
-void    ms_add_command(m_cmd **commands, m_cmd *command)
-{
-    m_cmd   *temp;
-
-    temp = *commands;
-    
-    if (!*commands)
-        *commands =command;
-    else
-    {
-        while (temp->next)
-            temp = temp->next;
-        temp->next = command;
-    }
-}
-
-void    ms_add_output(char *output, int type, m_output **lst)
-{
-    m_output *new;
-    m_output *temp;
-
-    new = ms_new_output(output, type);    
-    temp = *lst;
-    if (!*lst)
-        *lst = new;
-    else
-    {
-        while (temp->next)
-            temp = temp->next;
-        temp->next = new;
-    }
-}
-
-void    ms_add_arg(char *content, m_arg **lst)
-{
-    m_arg *new;
-    m_arg *temp;
- 
-    new = ms_new_arg(content);
-    temp = *lst;
-    if (!*lst)
-        *lst = new;
-    else
-    {
-        while (temp->next)
-            temp = temp->next;
-        temp->next = new;
-    }
-}
-
-int		ms_is_char_printable(int c)
-{
-	if (c >= 33 && c <= 126)
-		return (TRUE);
-	return (FALSE);
-}
-
-int     ms_check_pipe(char *line, int i)
-{
-    while (line[i])
-    {
-        if (line[i] == ';' || line[i] == '|')
-            return (TRUE);
-        if (ms_is_char_printable(line[i]))
-            return (FALSE);
-        i++;
-    }
-    return (TRUE);
-}
-
-void    ms_create_string(char *line, int i, m_parse *parse, m_env *env)
+void		ms_create_string(char *line, int i, m_parse *parse, m_env *env)
 {
     char *str;
     char *temp;
@@ -216,30 +21,29 @@ void    ms_create_string(char *line, int i, m_parse *parse, m_env *env)
     temp = 0;
     (void)line;
     (void)env;
-    ft_printf("i : %d save : %d content : %s\n", i, parse->save, parse->content);
-    if (i - parse->save > - 1)  // > 1 ?
+    //ft_printf("i : %d save : %d content : %s\n", i, parse->save, parse->content);  // debug
+    str = ft_substr(line, parse->save, i - parse->save);
+    if (parse->in_dollar == TRUE)
     {
-        str = ft_substr(line, parse->save, i - parse->save);
-        if (parse->in_dollar == TRUE)
+        if (!ft_strncmp(str, "?", 1)) // pour gerer $?
         {
-            if (!ft_strncmp(str, "?", 1)) // pour gerer $?
-            {
-                str = ft_strjoin_free("$", str, 2);
-                parse->content = ft_strjoin_free(parse->content, str, 1);
-            }
-            else
-                temp = ms_search_env(str, &env);
-            free(str);
-            if (!temp)
-                return;
-            str = temp;
-            if (line[i] == '/')
-                str = ft_strjoin_free(str, "/", 1);
-            parse->in_dollar = FALSE;
+            str = ft_strjoin_free("$", str, 2);
+            parse->content = ft_strjoin_free(parse->content, str, 1);
+            parse->save = i + 1;
+            //ft_printf("content after : %s\n", parse->content); // debug
         }
-        parse->content = ft_strjoin_free(parse->content, str, 3);
+        else
+            temp = ms_search_env(str, &env);
+        free(str);
+        if (!temp)
+            return;
+        str = temp;
+        if (line[i] == '/')
+            str = ft_strjoin_free(str, "/", 1);
+        parse->in_dollar = FALSE;
     }
-    ft_printf("content after : %s\n", parse->content);
+    parse->content = ft_strjoin_free(parse->content, str, 3);
+    //ft_printf("content after : %s\n", parse->content); // debug
     parse->save = i + 1;
 }
 
@@ -259,7 +63,7 @@ int    ms_handler_slash(char *line, int *i, m_parse *parse, m_env *env)
         {
             ms_create_string(line, *i, parse, env);
             parse->save = ++(*i);
-            if (!ms_is_char_printable(line[*i]))
+            if (line[*i] == 0)
                 return (ms_free_parse(-1, "backslash", parse));
         }
     }
@@ -387,7 +191,7 @@ int     ms_set_command(char *line, int i, m_cmd *command, m_env *env)
     if (line[i] == '|')
     {
         command->pipe = TRUE;
-        if (ms_check_pipe(line, i + 1))
+        if (ms_check_pipe(command, line, i + 1))
             return (ms_free_parse(-1, "pipe", &parse));
     }
     return (ms_free_parse(i, 0, &parse));
@@ -402,7 +206,7 @@ int     ms_free_parse(int res, char *msg, m_parse *parse)
     return (res);
 }
 
-m_cmd  *ms_set_commands(char *line, m_env *env)
+m_cmd  *ms_set_commands(char *line, m_env *env, m_sct *sct)
 {
     int     i;
     m_cmd   *commands;
@@ -413,16 +217,16 @@ m_cmd  *ms_set_commands(char *line, m_env *env)
     while (line[i])
     {
         command = ms_new_command();
-        if ((i = ms_set_command(line, i, command, env) ) == - 1)
+        if ((i = ms_set_command(line, i, command, env)) == - 1)
         {
             ms_free_cmd(&command);
             ms_free_cmd(&commands);
+            sct->status = 258;
             return (0);
         }
         ms_add_command(&commands, command);
         if (line[i])
             i++;
     }
-    //ms_debug_struct(&commands);
     return (commands);
 }

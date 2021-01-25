@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/17 09:43:56 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/23 13:26:32 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/25 15:52:20 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,21 +23,6 @@ m_sct   ms_init_sct()
     sct.saved_stdout = -1;
     sct.saved_stdin = -1;
     return (sct);
-}
-
-void    ms_exit_shell(char *str, int exit_status, m_sct *sct)
-{
-    /*if (exit_status > 0)
-    {
-        if (str)
-            ft_printf("Minishell: %s : %s", str, strerror(errno));
-        else
-            ft_printf("Minishell: %s", strerror(errno));
-    }*/
-    (void)str;
-    (void)sct;
-    sct->err = errno;
-    exit(exit_status);
 }
 
 char    *ms_minitrim(char *str)
@@ -72,19 +57,18 @@ char    *ms_current_folder(void)
 	int		len;
 
     if(!(path = malloc(PATH_MAX * sizeof(char))))
-    {
-        ft_printf("[ERROR] MALLOC");
         exit(EXIT_FAILURE);
-    }
     getcwd(path, PATH_MAX);
 	len = ft_strlen(path);
 	i = len;
-	while (i > 0 && path[i] != '/')
-		i--;
-    if (i == 0)
+    if (i == 1)
         res = ft_strdup("/");
     else
-	    res = ft_substr(path, i + 1, len - i);
+    {
+        while (path[i] != '/')
+		    i--;
+        res = ft_substr(path, i + 1, len - i);
+    }
 	free(path);
 	return (res);
 }

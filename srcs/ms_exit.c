@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/19 18:41:16 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/23 10:58:13 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/25 12:34:29 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,10 @@ void    ms_exit(m_sct *sct, m_env *env)
 
     i = 1;
     res = EXIT_SUCCESS;
+   
     while (sct->args[i])
         i++;
+    
     if (i > 2)
     {
         ft_printf("Minishell: exit: too many arguments\n");
@@ -53,7 +55,6 @@ void    ms_exit(m_sct *sct, m_env *env)
     }
     if (sct->in_pipe == FALSE)
     {
-        ms_free_cmd(sct->saved_cmds);
         ms_free_sct(sct);
         ms_free_env(&env);
         ft_printf("exit\n");

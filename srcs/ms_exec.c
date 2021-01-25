@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/16 10:10:45 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/24 09:18:55 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/25 16:25:32 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,8 @@ void    ms_set_envp(m_sct *sct, m_env **env)
 
     temp = *env;
     len = 0;
-    ms_free_envp(sct->envp);
+    if (sct->envp)
+        ms_free_envp(sct->envp);
     while (temp)
     {
         len++;
@@ -155,7 +156,7 @@ void    ms_set_envp(m_sct *sct, m_env **env)
     {
         sct->envp[len] = ft_strdup(temp->name);
         sct->envp[len] = ft_strjoin_free(sct->envp[len], "=", 1);
-        sct->envp[len] =ft_strjoin_free(sct->envp[len], temp->content, 1);
+        sct->envp[len] = ft_strjoin_free(sct->envp[len], temp->content, 1);
         len++;
         temp = temp->next;
     }
@@ -194,12 +195,12 @@ void    ms_exec_fork(m_sct *sct, m_cmd *command, m_env *env)
     
     ms_signal_handler(2);
     if ((pid = fork()) == -1)
-        ms_exit_shell(0, EXIT_FAILURE, sct);
+        exit(EXIT_FAILURE);
     else if (pid == 0)
     {
         sct->in_fork = TRUE;
         ms_exec_simple_command(sct, command, env);
-        ms_exit_shell(0, sct->status, sct);
+        exit(sct->status);
     }
     else
     {
@@ -208,7 +209,7 @@ void    ms_exec_fork(m_sct *sct, m_cmd *command, m_env *env)
         command = command->next;
         if (WIFEXITED(sct->status))
         {
-            ft_printf("strerror : %s\n", strerror(errno));
+            //ft_printf("strerror : %s\n", strerror(errno));
             sct->status = WEXITSTATUS(sct->status);
         }
     }
@@ -267,6 +268,8 @@ void    ms_exec_simple_command(m_sct *sct, m_cmd *command, m_env *env)
             sct->path = ms_search_path(sct);
             if (!sct->path)
             {
+                ms_reset_fd(sct, 3);
+                ft_printf("Minishell: %s: command not found\n", sct->args[0]);
                 sct->status = 127;
                 return;
             }
@@ -289,20 +292,18 @@ void    ms_exec_pipe(m_sct *sct, m_cmd **command, m_env *env)
     while (*command && ((*command)->pipe || last == TRUE))
     {
         if (pipe(pipefd) == -1)
-            ms_exit_shell(0, EXIT_FAILURE, sct);
+            exit(EXIT_FAILURE);
         if ((pid = fork()) == -1)
-            ms_exit_shell(0, EXIT_FAILURE, sct);
+            exit(sct->status);
         else if (pid == 0)
         {
-            sct->status = 0;
-            //ms_reset_fd(sct, 2);
             sct->saved_stdout = dup(STDOUT_FILENO);
             dup2(save_fd, 0); //change the input according to the old one 
             if ((*command)->next)
                 dup2(pipefd[1], STDOUT_FILENO);
             close(pipefd[0]);
             ms_exec_simple_command(sct, *command, env);
-            ms_exit_shell(0, sct->status, sct);
+            exit(sct->status);
         }
         else
         {

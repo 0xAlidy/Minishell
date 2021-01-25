@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/05 21:59:37 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/23 13:26:45 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/25 16:52:33 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,17 @@ typedef struct      s_sct
     m_cmd           **saved_cmds;
 }                   m_sct;
 
+m_parse		        ms_init_parse(void);
+m_output			*ms_new_output(char *output, int type);
+m_arg				*ms_new_arg(char *arg);
+m_cmd				*ms_new_command();
+void				ms_add_command(m_cmd **commands, m_cmd *command);
+void				ms_add_output(char *output, int type, m_output **lst);
+void				ms_add_arg(char *content, m_arg **lst);
+int					ms_is_char_printable(int c);
+int     			ms_check_pipe(m_cmd *cmd, char *line, int i);
+
+void                ms_debug_struct(m_cmd **cmds); // a enlever
 int		            ms_gnl_eof(int fd, char **line);
 char                *ms_get_env(char **env, char *key);
 m_env               *ms_new_env(char *name, char *content);
@@ -106,9 +117,8 @@ char                *ms_minitrim(char *str);
 int                 ms_indexchr(char *s, int c);
 void                ms_prompt(void);
 void                ms_signal_handler(int type);
-m_cmd               *ms_set_commands(char *line, m_env *env);
+m_cmd               *ms_set_commands(char *line, m_env *env, m_sct *sct);
 int                 ms_set_command(char *line, int i, m_cmd *command, m_env *env);
-void                ms_exit_shell(char *str, int exit_status, m_sct *sct);
 void                ms_exec_simple_command(m_sct *sct, m_cmd *command, m_env *env);
 void                ms_exec_commands(m_sct *sct, m_cmd **commands, m_env *env);
 void                ms_echo(m_sct *sct);

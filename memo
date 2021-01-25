@@ -153,6 +153,47 @@ All of the Bash builtins return an exit status of zero if they succeed and a non
 
 https://stackoverflow.com/questions/8082932/connecting-n-commands-with-pipes-in-a-shell
 
+[my parsing]
+
+ echo "salut mdr $path" 'test'| cat -e > text.txt
+
+ commande : echo
+ argument 1 : "salut mdr $path" => "salut mdr /user/alid/minishell"
+ argument 2 : 'test'
+ operateur : |
+ commande : cat
+ argument 1 : -e
+ operateur : >
+
+
+ \ => efface la barre et ne prete pas attention au charactere d'apres 
+ '' => ecrit exactement ce qu'il y a dedans 
+ "" => comme '' sauf qu'il prend en compte
+
+ $ => remplace par une variable d'environnement sauf si c'est un espace apres ou qu'il y a \ avant
+ \ => supprime la barre si suivi de " ou de $ sinon la laisse, suit la regle aussi avec les \
+
+
+ Sans quotes :
+
+ \ => efface la barre et ne prete pas attention au charactere d'apres
+ $ => remplace par la valeur env sauf s' il n'y a rien apres , supprime le $ s'il y a des quotes apres
+
+ Simple quotes : ecrit exactement ce qu'il y a dedans
+ 
+ \ => ne fait rien sauf si elle suivi de ' => ferme la quote
+
+ Double quotes: ecrit exactement ce qu'il y a dedans
+ 
+ $ => remplace par la valeur env sauf s' il n'y a rien apres
+
+ \ => desactive " et $ et \ sinon garde le \
+
+
+
+ " et \ impaires => message erreur multiligne 
+
+
 
 casser un minishell :
 
@@ -165,8 +206,11 @@ casser un minishell :
 7) cd .. ; env (PWD)
 8) echo $'HOME'
 9) echo \$HOME
-GERERERERERERER CAAAAAA
 10) cd $HOME/Bureau 
 11) export HOME= ; cd
 12) cd - 
 
+
+
+patch mdr
+patch f | echo salut

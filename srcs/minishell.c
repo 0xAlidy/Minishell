@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/11 10:54:17 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/23 10:39:54 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/25 13:19:06 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ void    minishell(int fd, char **e)
     char    *input;
 
     env = ms_set_env(e);
+    sct = ms_init_sct();
     while (42)
     {
         ms_signal_handler(1);
@@ -31,12 +32,12 @@ void    minishell(int fd, char **e)
             exit(EXIT_SUCCESS);
         }
         input = ms_minitrim(input);
-        commands = ms_set_commands(input, env);
+        commands = ms_set_commands(input, env, &sct);
         free(input);
-        if (commands && commands->args)
+        if (commands && (commands->args || commands->output))
         {
-            sct = ms_init_sct();
             ms_exec_commands(&sct, &commands, env);
+            ms_free_sct(&sct);
         }
     }
 }

@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 08:13:01 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/23 10:51:42 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/25 16:17:59 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ void    ms_free_sct(m_sct *sct)
     i = 0;
     if (sct->path)
         free(sct->path);
+    sct->path = 0;
+    
     while (sct->args && sct->args[i])
     {
         free(sct->args[i]);
@@ -57,7 +59,9 @@ void    ms_free_sct(m_sct *sct)
     }
     if (sct->args)
         free(sct->args);
+    sct->args = 0;
     ms_free_envp(sct->envp);
+    ms_free_cmd(sct->saved_cmds);
 }
 
 void    ms_free_cmd(m_cmd **lst)
@@ -75,6 +79,7 @@ void    ms_free_cmd(m_cmd **lst)
         free(temp);
         temp = save;
     }
+    *lst = 0;
 }
 
 void    ms_free_output(m_output **lst)
