@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/23 11:33:04 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/24 20:22:03 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,7 +216,7 @@ void    ms_create_string(char *line, int i, m_parse *parse, m_env *env)
     temp = 0;
     (void)line;
     (void)env;
-    //ft_printf("i : %d save : %d content : %s\n", i, parse->save, parse->content);
+    ft_printf("i : %d save : %d content : %s\n", i, parse->save, parse->content);
     if (i - parse->save > - 1)  // > 1 ?
     {
         str = ft_substr(line, parse->save, i - parse->save);
@@ -239,7 +239,7 @@ void    ms_create_string(char *line, int i, m_parse *parse, m_env *env)
         }
         parse->content = ft_strjoin_free(parse->content, str, 3);
     }
-    //ft_printf("content after : %s\n", parse->content);
+    ft_printf("content after : %s\n", parse->content);
     parse->save = i + 1;
 }
 
@@ -342,17 +342,14 @@ int    ms_set_content(char *line, int i, m_parse *parse, m_cmd *cmd, m_env *env)
     if (parse->in_squote == TRUE || parse->in_dquote == TRUE)
         return (ms_free_parse(-1, "quotes", parse));
     ms_create_string(line, i, parse, env);
-    if (parse->content)
-    {
-        if (parse->type_output)
-            ms_add_output(parse->content, parse->type_output, &(cmd->output));
-        else
-            ms_add_arg(parse->content, &(cmd->args));
-        free(parse->content);
-        parse->content = 0;
-        parse->type_output = 0;
-        parse->is_double = FALSE;
-    }
+    if (parse->type_output)
+        ms_add_output(parse->content, parse->type_output, &(cmd->output));
+    else
+        ms_add_arg(parse->content, &(cmd->args));
+    free(parse->content);
+    parse->content = 0;
+    parse->type_output = 0;
+    parse->is_double = FALSE;
     return (i);
 }
 

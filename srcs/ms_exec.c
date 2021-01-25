@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/16 10:10:45 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/23 13:45:29 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/24 09:18:55 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,6 @@ void    ms_reset_fd(m_sct *sct, int check)
         close(sct->saved_stdin);
         sct->saved_stdin = -1;
     }
-    
 }
 
 int   ms_set_redirections(m_sct *sct, m_cmd *command)
@@ -105,7 +104,12 @@ int   ms_set_redirections(m_sct *sct, m_cmd *command)
             sct->saved_stdout = dup(STDOUT_FILENO);
             if (!(fd = open(temp->content, O_WRONLY | O_CREAT | O_TRUNC,
 			S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))
-                exit(EXIT_FAILURE); //erreur
+            {
+                ms_reset_fd(sct, 3);
+                ft_printf("Minishell : %s: %s\n", temp->content, strerror(errno));
+                sct->status = 1;
+                return (-1);
+            }
             dup2(fd, STDOUT_FILENO); 
             close(fd);
         }
@@ -115,7 +119,12 @@ int   ms_set_redirections(m_sct *sct, m_cmd *command)
             sct->saved_stdout = dup(STDOUT_FILENO);
             if (!(fd = open(temp->content, O_WRONLY | O_CREAT | O_APPEND,
 			S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))
-                exit(EXIT_FAILURE); //erreur
+            {
+                ms_reset_fd(sct, 3);
+                ft_printf("Minishell : %s: %s\n", temp->content, strerror(errno));
+                sct->status = 1;
+                return (-1);
+            }
             dup2(fd, STDOUT_FILENO); // stdout
             close(fd);
         }
@@ -286,9 +295,11 @@ void    ms_exec_pipe(m_sct *sct, m_cmd **command, m_env *env)
         else if (pid == 0)
         {
             sct->status = 0;
+            //ms_reset_fd(sct, 2);
+            sct->saved_stdout = dup(STDOUT_FILENO);
             dup2(save_fd, 0); //change the input according to the old one 
             if ((*command)->next)
-                dup2(pipefd[1], 1);
+                dup2(pipefd[1], STDOUT_FILENO);
             close(pipefd[0]);
             ms_exec_simple_command(sct, *command, env);
             ms_exit_shell(0, sct->status, sct);
