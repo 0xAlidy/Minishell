@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 08:13:01 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/25 16:17:59 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 10:23:59 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,40 +28,21 @@ void    ms_free_env(m_env **lst)
     }
 }
 
-void    ms_free_envp(char **envp)
+void    ms_free_tab(char **tab)
 {
     int i;
 
     i = 0;
-    while (envp && envp[i])
+    if (tab)
     {
-        free(envp[i]);
-        i++;
+        while (tab[i])
+        {
+            free(tab[i]);
+            i++;
+        }
+        free(tab);
     }
-    if (envp)
-        free(envp);
-    envp = 0;
-}
-
-void    ms_free_sct(m_sct *sct)
-{
-    int i;
-
-    i = 0;
-    if (sct->path)
-        free(sct->path);
-    sct->path = 0;
-    
-    while (sct->args && sct->args[i])
-    {
-        free(sct->args[i]);
-        i++;
-    }
-    if (sct->args)
-        free(sct->args);
-    sct->args = 0;
-    ms_free_envp(sct->envp);
-    ms_free_cmd(sct->saved_cmds);
+    tab = 0;
 }
 
 void    ms_free_cmd(m_cmd **lst)

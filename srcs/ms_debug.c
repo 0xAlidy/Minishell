@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 16:37:39 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/25 16:40:56 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 12:50:20 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void	ms_debug_struct(m_cmd **cmds)
         ft_printf("args : ");
         while (args)
         {
-            ft_printf("%s -> ", args->content);
+            ft_printf("%s->", args->content);
             args = args->next;
         }
         ft_printf("\nout : ");
@@ -40,4 +40,16 @@ void	ms_debug_struct(m_cmd **cmds)
         ft_printf("\npipe: %d\n",temp->pipe);
         temp = temp->next;
     }   
+}
+
+void    ms_print_tab(char **tab)
+{
+    int i;
+
+    i = 0;
+    while (tab[i])
+    {
+        ft_printf("%s\n", tab[i]);
+        i++;
+    }
 }

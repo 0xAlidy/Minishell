@@ -6,11 +6,11 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 13:31:04 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/24 08:11:44 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 11:24:04 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../../include/minishell.h"
 
 void    ms_cd(m_sct *sct, m_env **env)
 {
@@ -41,7 +41,10 @@ void    ms_cd(m_sct *sct, m_env **env)
     {
         if (!(path = malloc(PATH_MAX * sizeof(char))))
         {
-            ft_printf("[ERROR] MALLOC");
+            ms_free_sct(sct);
+            ms_free_env(env);
+            ft_printf("Minishell: memory crash\n");
+            ft_printf("exit\n");
             exit(EXIT_FAILURE);
         }
         getcwd(path, PATH_MAX);
@@ -51,7 +54,9 @@ void    ms_cd(m_sct *sct, m_env **env)
     if ((sct->status = chdir(path)) == -1)
     {
         free(path);
+        ms_reset_fd(sct, 3);
         ft_printf("Minishell: cd : %s: %s\n", sct->args[1], strerror(errno));
+        sct->status = 1;
         return;
     }
     if (check == TRUE)
@@ -60,8 +65,11 @@ void    ms_cd(m_sct *sct, m_env **env)
     free(path);
     if(!(path = malloc(PATH_MAX * sizeof(char))))
     {
-        ft_printf("[ERROR] MALLOC");
-        exit(EXIT_FAILURE);
+            ms_free_sct(sct);
+            ms_free_env(env);
+            ft_printf("Minishell: memory crash\n");
+            ft_printf("exit\n");
+            exit(EXIT_FAILURE);
     }
     getcwd(path, PATH_MAX);
     ms_modify_env(env, "PWD", path);

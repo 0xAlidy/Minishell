@@ -1,22 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ms_init_parse.c                                    :+:      :+:    :+:   */
+/*   ms_parse_init.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 16:47:40 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/25 16:51:25 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 09:26:04 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../../include/minishell.h"
 
-m_parse		ms_init_parse(void)
+m_parse		ms_init_parse(m_env **env)
 {
 	m_parse parse;
 
 	parse.save = 0;
+	parse.env = env;
 	parse.content = 0;
 	parse.type_output = 0;
 	parse.in_slash = FALSE;
@@ -60,4 +61,13 @@ m_cmd		*ms_new_command(void)
 	command->pipe = FALSE;
 	command->next = 0;
 	return (command);
+}
+
+int			ms_free_parse(int res, char *msg, m_parse *parse)
+{
+	if (parse->content)
+		free(parse->content);
+	if (msg)
+		ft_printf("Minishell: %s: syntax error\n", msg);
+	return (res);
 }

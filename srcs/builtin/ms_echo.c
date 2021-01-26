@@ -6,11 +6,11 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/18 08:24:14 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/23 09:14:00 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 13:07:13 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../../include/minishell.h"
 
 int     ms_is_option(char *str)
 {

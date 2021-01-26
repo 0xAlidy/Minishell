@@ -6,11 +6,11 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 16:51:01 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/25 16:54:21 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 08:35:41 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../../include/minishell.h"
 
 void		ms_add_command(m_cmd **commands, m_cmd *command)
 {

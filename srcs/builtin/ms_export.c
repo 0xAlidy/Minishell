@@ -6,11 +6,11 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 11:17:19 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/25 15:22:37 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 09:10:37 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../../include/minishell.h"
 
 m_env    *ms_cpy_env(m_env **env)
 {

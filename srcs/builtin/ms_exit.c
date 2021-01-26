@@ -6,11 +6,18 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/19 18:41:16 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/25 12:34:29 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 10:24:09 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../../include/minishell.h"
+
+void    ms_free_sct(m_sct *sct)
+{
+    ms_free_tab(sct->args);
+    ms_free_tab(sct->envp);
+    ms_free_cmd(sct->saved_cmds);
+}
 
 int    ms_exit_test(char *str)
 {

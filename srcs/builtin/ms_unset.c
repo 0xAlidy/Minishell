@@ -6,11 +6,11 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 16:52:58 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/25 15:31:52 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 09:10:43 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../../include/minishell.h"
 
 void    ms_unset(m_sct *sct, m_env **env)
 {

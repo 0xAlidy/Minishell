@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/17 09:43:56 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/25 15:52:20 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 10:03:44 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ m_sct   ms_init_sct()
     sct.path = 0;
     sct.status = 0;
     sct.envp = 0;
-    sct.err = 0;
     sct.saved_stdout = -1;
     sct.saved_stdin = -1;
     return (sct);
