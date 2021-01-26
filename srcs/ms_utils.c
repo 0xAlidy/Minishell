@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/17 09:43:56 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 10:03:44 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 21:13:43 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,7 @@ char    *ms_minitrim(char *str)
 
     i = 0;
     if (!(res = malloc(ft_strlen(str) + 1)))
-    {
-        ft_printf("error malloc");
-        exit(EXIT_FAILURE);
-    }
+        return (0);
     while (str[i])
     {
         if (str[i] == '\t' || str[i] == '\v' || str[i] == '\f' || str[i] == '\r')
@@ -56,7 +53,7 @@ char    *ms_current_folder(void)
 	int		len;
 
     if(!(path = malloc(PATH_MAX * sizeof(char))))
-        exit(EXIT_FAILURE);
+        return (0);
     getcwd(path, PATH_MAX);
 	len = ft_strlen(path);
 	i = len;

@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/26 08:02:04 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 11:37:51 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 17:32:46 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,16 +48,20 @@ int		ms_handler_slash(char *l, int *i, m_parse *parse)
 
 void	ms_handler_dollar(char *line, int *i, m_parse *p)
 {
-	if (line[*i + 1] == '?' && (p->in_slash == TRUE || p->in_squote == TRUE))
+	if (line[*i + 1] == '?')
 	{
-		if (p->in_squote == TRUE)
+		if (p->in_slash == TRUE || p->in_squote == TRUE)
+		{
+			if (p->in_squote == TRUE)
 			ms_create_string(line, *i, p);
-		p->content = ft_strjoin_free(p->content, "$\t", 1);
-		p->save = *i + 1;
+			p->content = ft_strjoin_free(p->content, "$\t", 1);
+			p->save = *i + 1;
+		}
 		return ;
 	}
 	if (!ms_is_char_printable(line[*i + 1]) || p->in_squote == TRUE
-	|| line[*i + 1] == '\\' || p->in_slash == TRUE)
+	|| line[*i + 1] == '\\' || p->in_slash == TRUE 
+	|| (p->in_dquote == TRUE && (line[*i + 1] == '"' || line[*i + 1] == '=')))
 		return ;
 	ms_create_string(line, *i, p);
 	p->in_dollar = TRUE;

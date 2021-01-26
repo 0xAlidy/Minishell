@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 16:47:40 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 09:26:04 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 16:52:27 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ m_parse		ms_init_parse(m_env **env)
 	parse.env = env;
 	parse.content = 0;
 	parse.type_output = 0;
+	parse.none = FALSE;
 	parse.in_slash = FALSE;
 	parse.in_squote = FALSE;
 	parse.in_dquote = FALSE;
@@ -68,6 +69,6 @@ int			ms_free_parse(int res, char *msg, m_parse *parse)
 	if (parse->content)
 		free(parse->content);
 	if (msg)
-		ft_printf("Minishell: %s: syntax error\n", msg);
+		ft_printf("Minishell: syntax error near unexpected token : '%s'\n", msg);
 	return (res);
 }

@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/16 10:10:45 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 11:32:47 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 22:19:07 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,9 @@ int     ms_test_path(char *path)
     
     if (stat(path, &buf) == 0)
     {
-            if (S_ISDIR(buf.st_mode))
+            if (S_ISDIR(buf.st_mode)) 
             {
-                ft_printf("%s: is a directory\n", path); 
+                ft_printf("Minishell: %s: is a directory\n",path);
                 return (-1);
             }
             if (S_ISREG(buf.st_mode))
@@ -241,6 +241,8 @@ int    ms_handler_builtin(m_sct *sct, m_env *env)
 
 void    ms_exec_simple_command(m_sct *sct, m_cmd *command, m_env *env)
 {
+    int res;
+    
     ms_transform_args(sct, &(command->args));
     ms_set_envp(sct, &env);
     sct->status = 0;
@@ -256,10 +258,19 @@ void    ms_exec_simple_command(m_sct *sct, m_cmd *command, m_env *env)
             ms_exec_fork(sct, command, env);
         else
         {
-            if (ms_test_path(sct->args[0]) == 0)
-                ft_printf("%s: No such file or directory\n", sct->args[0]);
+            if ((res = ms_test_path(sct->args[0])) < 1)
+            {
+                sct->status = 126;
+                if (res == 0)
+                    ft_printf("%s: No such file or directory\n", sct->args[0]);
+            }
             else
-                execve(sct->args[0], sct->args, sct->envp);
+            {
+                if (execve(sct->args[0], sct->args, sct->envp) < 0)
+                    ft_printf("Minishell: %s: %s\n", sct->args[0], strerror(errno));
+                    sct->status = 126;
+            }
+                
         }       
     }
     else if (ms_handler_builtin(sct, env)) // si un built in

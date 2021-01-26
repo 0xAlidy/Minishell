@@ -6,11 +6,18 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/26 08:44:00 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 12:46:29 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 18:03:46 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
+
+int			ms_is_char_printable(int c)
+{
+	if (c >= 33 && c <= 126)
+		return (TRUE);
+	return (FALSE);
+}
 
 char	*ms_create_dollar(char *str, int i, m_parse *parse)
 {
@@ -31,21 +38,29 @@ char	*ms_create_dollar(char *str, int i, m_parse *parse)
 
 void	ms_create_string(char *line, int i, m_parse *parse)
 {
-	char *str;
+	char 	*str;
+	int		ok;
+
+	ok = FALSE;
 	if (!(str = ft_substr(line, parse->save, i - parse->save)))
-		return;
-	//ft_printf("i :%d\nstr:%s$\n", i, str);
+		return;	
+	//ft_printf("str:%s$\n", str);
 	//ft_printf("content:%s$\n", parse->content);
 	if (parse->in_dollar == TRUE)
 	{
 		str = ms_create_dollar(str, i, parse);
-		if (line[i] == '/')
-			str = ft_strjoin_free(str, "/", 1);
 		parse->in_dollar = FALSE;
+		if (!ft_isalnum(line[i]))
+			ok = TRUE;
 	}
 	parse->content = ft_strjoin_free(parse->content, str, 3);
 	//ft_printf("content after:%s$\n", parse->content);
-	parse->save = i + 1;
+	if (ok == TRUE)
+		parse->save = i;
+	else
+		parse->save = i + 1;
+	if (!str)
+		parse->none = TRUE;
 }
 
 int		ms_parse_arg(char *line, int i, m_parse *parse)
@@ -57,7 +72,7 @@ int		ms_parse_arg(char *line, int i, m_parse *parse)
 	&& line[i] != '<' && line[i] != '>')))
 	{
 		parse->in_slash = FALSE;
-		if (line[i] == '/' && parse->in_dollar == TRUE)
+		if (parse->in_dollar == TRUE && !ft_isalnum(line[i]))
 			ms_create_string(line, i, parse);
 		if (line[i] == '\\')
 		{

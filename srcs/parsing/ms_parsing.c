@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/10 09:50:05 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 13:14:12 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 17:04:39 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int    ms_set_content(char *line, int i, m_parse *parse, m_cmd *cmd)
     if (parse->in_squote == TRUE || parse->in_dquote == TRUE)
         return (ms_free_parse(-1, "quotes", parse));
     ms_create_string(line, i, parse);
-    if (parse->content[0] != 0)
+    if (!(parse->none == TRUE && parse->content[0] == 0))
     {
         if (parse->type_output)
             ms_add_output(parse->content, parse->type_output, &(cmd->output));
@@ -29,7 +29,7 @@ int    ms_set_content(char *line, int i, m_parse *parse, m_cmd *cmd)
     free(parse->content);
     parse->content = 0;
     parse->type_output = 0;
-    parse->is_double = FALSE;
+    parse->none = FALSE;
     return (i);
 }
 
@@ -43,7 +43,7 @@ int		ms_parse_line(char *line, int i, m_parse *parse, m_cmd *command)
         if (line[i] == '>' || line[i] == '<')
         {
             if (parse->type_output)
-                return (ms_free_parse(-1, "redirection", parse));
+                return (ms_free_parse(-1, "newline", parse));
             if (line[i] == '>')
             {
                 parse->type_output = 2;
@@ -70,13 +70,11 @@ int     ms_set_command(char *line, int i, m_cmd *command, m_env **env)
 	if ((i = ms_parse_line(line, i, &parse, command)) == -1)
 		return(-1);
     if (parse.type_output)
-        return (ms_free_parse(-1, "redirection", &parse));
+        return (ms_free_parse(-1, "newline", &parse));
+    if (ms_check_end(&parse, line, i) == -1)
+        return (-1);
     if (line[i] == '|')
-    {
-        command->pipe = TRUE;
-        if (ms_check_pipe(command, line, i + 1))
-            return (ms_free_parse(-1, "pipe", &parse));
-    }
+		command->pipe = TRUE;
     return (ms_free_parse(i, 0, &parse));
 }
 

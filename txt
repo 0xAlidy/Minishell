@@ -1,1 +1,0 @@
-okMinishell : mdr: No such file or directory

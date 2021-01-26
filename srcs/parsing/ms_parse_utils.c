@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 16:51:01 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 08:35:41 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 17:05:52 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,24 +61,23 @@ void		ms_add_arg(char *content, m_arg **lst)
 	}
 }
 
-int			ms_is_char_printable(int c)
+int			ms_check_end(m_parse *parse, char *line, int i)
 {
-	if (c >= 33 && c <= 126)
-		return (TRUE);
-	return (FALSE);
-}
+	char save;
 
-int			ms_check_pipe(m_cmd *cmd, char *line, int i)
-{
-	if (cmd->args == 0 && cmd->output == 0)
-		return (TRUE);
-	while (line[i])
+	save = line[i];
+	i--;
+	while (i >= 0)
 	{
-		if (line[i] == ';' || line[i] == '|')
-			return (TRUE);
+		if (line[i] == ';')
+			return (ms_free_parse(-1, ";", parse));
+		if (line[i] == '|')
+			return (ms_free_parse(-1, "|", parse));
 		if (ms_is_char_printable(line[i]))
-			return (FALSE);
-		i++;
+			return (TRUE);
+		i--;
 	}
-	return (TRUE);
-}
+	if (save == '|')
+		return (ms_free_parse(-1, "|", parse));
+	return (ms_free_parse(-1, ";", parse));
+}	

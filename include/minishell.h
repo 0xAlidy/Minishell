@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/05 21:59:37 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 11:24:25 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/26 21:52:24 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,12 @@ typedef struct      s_env
 typedef struct      s_parse
 {
     int             save;
+    int             none;
     int             type_output;
     int             in_squote;
     int             in_dquote;
     int             in_dollar;
     int             in_slash;
-    int             is_double;
     char            *content;
 	m_env 			**env;
 }                   m_parse;
@@ -111,7 +111,7 @@ void				ms_add_command(m_cmd **commands, m_cmd *command);
 void				ms_add_output(char *output, int type, m_output **lst);
 void				ms_add_arg(char *content, m_arg **lst);
 int					ms_is_char_printable(int c);
-int     			ms_check_pipe(m_cmd *cmd, char *line, int i);
+int			        ms_check_end(m_parse *parse, char *line, int i);
 void				ms_create_space(char *line, int *i, m_parse *parse);
 int                 ms_handler_slash(char *line, int *i, m_parse *parse);
 void                ms_handler_dollar(char *line, int *i, m_parse *parse);
@@ -119,7 +119,7 @@ void                ms_handler_quotes(char *line, int *i, m_parse *parse);
 
 
 
-
+m_env	            **ms_sort_env(m_env **env);
 void                ms_debug_struct(m_cmd **cmds); // a enlever
 void    			ms_print_tab(char **tab); // a enlever
 int		            ms_gnl_eof(int fd, char **line);
