@@ -6,10 +6,24 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/26 21:07:49 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 21:14:06 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/27 13:36:12 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../../include/minishell.h"
 
+int		ms_indexchr(char *s, int c)
+{
+	int i;
 
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == c)
+			return (i);
+		i++;
+	}
+	if (s[i] == c)
+		return (i);
+	return (-1);
+}

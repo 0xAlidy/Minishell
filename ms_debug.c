@@ -6,17 +6,17 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 16:37:39 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 12:50:20 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/27 15:16:17 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void	ms_debug_struct(m_cmd **cmds)
+void	ms_debug_struct(t_cmd **cmds)
 {
-    m_cmd		*temp;
-    m_output	*out;
-    m_arg		*args;
+    t_cmd		*temp;
+    t_output	*out;
+    t_arg		*args;
 
     temp = *cmds;
     if (!cmds)

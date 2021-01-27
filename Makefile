@@ -6,7 +6,7 @@
 #    By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/02 17:12:28 by alidy             #+#    #+#              #
-#    Updated: 2021/01/26 09:36:30 by alidy            ###   ########lyon.fr    #
+#    Updated: 2021/01/27 15:19:39 by alidy            ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,6 +18,7 @@ LIBS			=		libft/libft.a
 SRC_PATH		=		srcs
 
 SRCS_NAME		=		minishell.c 				\
+						ms_debug.c 					\
 						parsing/ms_parsing.c 		\
 						parsing/ms_parsing_2.c 		\
 						parsing/ms_parse_init.c		\
@@ -30,13 +31,17 @@ SRCS_NAME		=		minishell.c 				\
 						builtin/ms_unset.c 			\
 						builtin/ms_cd.c 			\
 						builtin/ms_exit.c 			\
-						ms_free.c 			\
-						ms_env_utils.c 		\
-						ms_gnl_eof.c 		\
-						ms_signals.c 		\
-						ms_utils.c			\
-						ms_debug.c 			\
-						ms_exec.c 			\
+						utils/ms_free.c 			\
+						utils/ms_env_utils.c 		\
+						utils/ms_gnl_eof.c 			\
+						utils/ms_signals.c 			\
+						utils/ms_utils.c			\
+						utils/ms_utils_2.c 			\
+						exec/ms_exec.c 				\
+						exec/ms_exec_cmd.c 			\
+						exec/ms_redirections.c 		\
+						exec/ms_exec_utils.c 		\
+						exec/ms_exec_pipe.c 		\
 						
 #enlever debug
 						

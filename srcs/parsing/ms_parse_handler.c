@@ -6,20 +6,20 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/26 08:02:04 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 17:32:46 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/27 15:15:54 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-void	ms_create_space(char *line, int *i, m_parse *parse)
+void	ms_create_space(char *line, int *i, t_parse *parse)
 {
 	ms_create_string(line, *i, parse);
 	parse->content = ft_strjoin_free(parse->content, "\t", 1);
 	parse->save = ++(*i);
 }
 
-int		ms_handler_slash(char *l, int *i, m_parse *parse)
+int		ms_handler_slash(char *l, int *i, t_parse *parse)
 {
 	if (l[*i + 1])
 		parse->in_slash = TRUE;
@@ -46,28 +46,28 @@ int		ms_handler_slash(char *l, int *i, m_parse *parse)
 	return (TRUE);
 }
 
-void	ms_handler_dollar(char *line, int *i, m_parse *p)
+void	ms_handler_dollar(char *line, int *i, t_parse *p)
 {
 	if (line[*i + 1] == '?')
 	{
 		if (p->in_slash == TRUE || p->in_squote == TRUE)
 		{
 			if (p->in_squote == TRUE)
-			ms_create_string(line, *i, p);
+				ms_create_string(line, *i, p);
 			p->content = ft_strjoin_free(p->content, "$\t", 1);
 			p->save = *i + 1;
 		}
 		return ;
 	}
 	if (!ms_is_char_printable(line[*i + 1]) || p->in_squote == TRUE
-	|| line[*i + 1] == '\\' || p->in_slash == TRUE 
+	|| line[*i + 1] == '\\' || p->in_slash == TRUE
 	|| (p->in_dquote == TRUE && (line[*i + 1] == '"' || line[*i + 1] == '=')))
 		return ;
 	ms_create_string(line, *i, p);
 	p->in_dollar = TRUE;
 }
 
-void	ms_handler_quotes(char *line, int *i, m_parse *parse)
+void	ms_handler_quotes(char *line, int *i, t_parse *parse)
 {
 	if (line[*i] == '"' && parse->in_squote == FALSE)
 	{

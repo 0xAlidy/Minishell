@@ -6,16 +6,16 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/20 10:29:38 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 22:09:00 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/27 15:15:28 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-m_env	*ms_cpy_env(m_env **env)
+t_env	*ms_cpy_env(t_env **env)
 {
-	m_env *temp;
-	m_env *res;
+	t_env *temp;
+	t_env *res;
 
 	temp = *env;
 	res = 0;
@@ -27,14 +27,14 @@ m_env	*ms_cpy_env(m_env **env)
 	return (res);
 }
 
-void	ms_sort_env_util(m_env *temp, int *swap)
+void	ms_sort_env_util(t_env *temp, int *swap)
 {
 	char	*save;
 
 	save = 0;
 	while (temp->next)
 	{
-		if (strncmp(temp->name,temp->next->name, ft_strlen(temp->name)) > 0)
+		if (strncmp(temp->name, temp->next->name, ft_strlen(temp->name)) > 0)
 		{
 			save = temp->name;
 			temp->name = temp->next->name;
@@ -48,11 +48,11 @@ void	ms_sort_env_util(m_env *temp, int *swap)
 	}
 }
 
-m_env	**ms_sort_env(m_env **env)
+t_env	**ms_sort_env(t_env **env)
 {
-	m_env	**s;
-	m_env	*lst;
-	m_env	*temp;
+	t_env	**s;
+	t_env	*lst;
+	t_env	*temp;
 	int		swap;
 
 	lst = ms_cpy_env(env);
@@ -68,7 +68,7 @@ m_env	**ms_sort_env(m_env **env)
 	return (s);
 }
 
-void	ms_env(m_sct *sct)
+void	ms_env(t_sct *sct)
 {
 	int i;
 

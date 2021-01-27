@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/18 08:24:14 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 21:23:50 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/27 15:15:28 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int		ms_is_option(char *str)
 	return (TRUE);
 }
 
-void	ms_echo(m_sct *sct)
+void	ms_echo(t_sct *sct)
 {
 	int i;
 	int option;

@@ -6,20 +6,20 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/26 08:44:00 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 18:03:46 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/27 15:15:54 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-int			ms_is_char_printable(int c)
+int		ms_is_char_printable(int c)
 {
 	if (c >= 33 && c <= 126)
 		return (TRUE);
 	return (FALSE);
 }
 
-char	*ms_create_dollar(char *str, int i, m_parse *parse)
+char	*ms_create_dollar(char *str, int i, t_parse *parse)
 {
 	char *res;
 
@@ -36,16 +36,14 @@ char	*ms_create_dollar(char *str, int i, m_parse *parse)
 	return (res);
 }
 
-void	ms_create_string(char *line, int i, m_parse *parse)
+void	ms_create_string(char *line, int i, t_parse *parse)
 {
-	char 	*str;
+	char	*str;
 	int		ok;
 
 	ok = FALSE;
 	if (!(str = ft_substr(line, parse->save, i - parse->save)))
-		return;	
-	//ft_printf("str:%s$\n", str);
-	//ft_printf("content:%s$\n", parse->content);
+		return ;
 	if (parse->in_dollar == TRUE)
 	{
 		str = ms_create_dollar(str, i, parse);
@@ -54,7 +52,6 @@ void	ms_create_string(char *line, int i, m_parse *parse)
 			ok = TRUE;
 	}
 	parse->content = ft_strjoin_free(parse->content, str, 3);
-	//ft_printf("content after:%s$\n", parse->content);
 	if (ok == TRUE)
 		parse->save = i;
 	else
@@ -63,31 +60,30 @@ void	ms_create_string(char *line, int i, m_parse *parse)
 		parse->none = TRUE;
 }
 
-int		ms_parse_arg(char *line, int i, m_parse *parse)
+int		ms_parse_arg(char *l, int i, t_parse *p)
 {
-	parse->save = i;
-	while (line[i] && (parse->in_squote == TRUE || parse->in_dquote == TRUE
-	|| parse->in_slash == TRUE
-	|| (line[i] != '|' && line[i] != ';' && line[i] != ' '
-	&& line[i] != '<' && line[i] != '>')))
+	p->save = i;
+	while (l[i] && (p->in_squote == TRUE || p->in_dquote == TRUE
+	|| p->in_slash == TRUE
+	|| (l[i] != '|' && l[i] != ';' && l[i] != ' '
+	&& l[i] != '<' && l[i] != '>')))
 	{
-		parse->in_slash = FALSE;
-		if (parse->in_dollar == TRUE && !ft_isalnum(line[i]))
-			ms_create_string(line, i, parse);
-		if (line[i] == '\\')
+		p->in_slash = FALSE;
+		if (p->in_dollar == TRUE && !ft_isalnum(l[i]))
+			ms_create_string(l, i, p);
+		if (l[i] == '\\')
 		{
-			if ((ms_handler_slash(line, &i, parse)) == -1)
+			if ((ms_handler_slash(l, &i, p)) == -1)
 				return (-1);
 		}
-		else if (line[i] == '\'' || line[i] == '"')
-			ms_handler_quotes(line, &i, parse);
-		if (line[i] == '$')
-			ms_handler_dollar(line, &i, parse);
-		if (line[i] == ' ' && parse->in_dquote == TRUE && parse->in_dollar)
-			ms_create_string(line, i, parse);
-		if (line[i] && (parse->in_squote == TRUE || parse->in_dquote == TRUE
-		|| parse->in_slash == TRUE
-		|| (line[i] != '|' && line[i] != ';' && line[i] != ' ')))
+		else if (l[i] == '\'' || l[i] == '"')
+			ms_handler_quotes(l, &i, p);
+		if (l[i] == '$')
+			ms_handler_dollar(l, &i, p);
+		if (l[i] == ' ' && p->in_dquote == TRUE && p->in_dollar)
+			ms_create_string(l, i, p);
+		if (l[i] && (p->in_squote == TRUE || p->in_dquote == TRUE ||
+		p->in_slash == TRUE || (l[i] != '|' && l[i] != ';' && l[i] != ' ')))
 			i++;
 	}
 	return (i);

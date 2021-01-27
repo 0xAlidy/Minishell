@@ -6,15 +6,15 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 16:47:40 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 16:52:27 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/27 15:16:17 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-m_parse		ms_init_parse(m_env **env)
+t_parse		ms_init_parse(t_env **env)
 {
-	m_parse parse;
+	t_parse parse;
 
 	parse.save = 0;
 	parse.env = env;
@@ -28,11 +28,11 @@ m_parse		ms_init_parse(m_env **env)
 	return (parse);
 }
 
-m_output	*ms_new_output(char *output, int type)
+t_output	*ms_new_output(char *output, int type)
 {
-	m_output *new;
+	t_output *new;
 
-	if (!(new = malloc(sizeof(m_output))))
+	if (!(new = malloc(sizeof(t_output))))
 		exit(EXIT_FAILURE);
 	new->content = ft_strdup(output);
 	new->type = type;
@@ -40,22 +40,22 @@ m_output	*ms_new_output(char *output, int type)
 	return (new);
 }
 
-m_arg		*ms_new_arg(char *arg)
+t_arg		*ms_new_arg(char *arg)
 {
-	m_arg *new;
+	t_arg *new;
 
-	if (!(new = malloc(sizeof(m_arg))))
+	if (!(new = malloc(sizeof(t_arg))))
 		exit(EXIT_FAILURE);
 	new->content = ft_strdup(arg);
 	new->next = 0;
 	return (new);
 }
 
-m_cmd		*ms_new_command(void)
+t_cmd		*ms_new_command(void)
 {
-	m_cmd *command;
+	t_cmd *command;
 
-	if (!(command = malloc(sizeof(m_cmd))))
+	if (!(command = malloc(sizeof(t_cmd))))
 		exit(EXIT_FAILURE);
 	command->args = 0;
 	command->output = 0;
@@ -64,11 +64,14 @@ m_cmd		*ms_new_command(void)
 	return (command);
 }
 
-int			ms_free_parse(int res, char *msg, m_parse *parse)
+int			ms_free_parse(int res, char *msg, t_parse *parse)
 {
 	if (parse->content)
 		free(parse->content);
 	if (msg)
-		ft_printf("Minishell: syntax error near unexpected token : '%s'\n", msg);
+	{
+		ft_printf("Minishell: syntax error near unexpected token : ");
+		ft_printf("'%s'\n", msg);
+	}
 	return (res);
 }

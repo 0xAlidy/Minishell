@@ -6,27 +6,29 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/21 13:31:04 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 22:11:47 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/27 15:15:28 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-int		ms_set_path(m_sct *sct, m_env **env, char *path, char *var)
+int		ms_set_path(t_sct *sct, t_env **env, char **path, char *var)
 {
-	path = ms_search_env(var, env);
-	if (!path)
+	*path = ms_search_env(var, env);
+	if (!*path)
 	{
 		ft_printf("Minishell: %s not set\n", var);
 		sct->status = 1;
 		return (FALSE);
 	}
-	else if (!path[0])
+	else if (!(*path)[0])
 		return (FALSE);
+	else if (sct->args[1] && !strncmp(sct->args[1], "~", 1))
+		*path = ft_strjoin_free(*path, sct->args[1] + 1, 1);
 	return (TRUE);
 }
 
-void	ms_cd_end(m_sct *sct, m_env **env, char *path, int check)
+void	ms_cd_end(t_sct *sct, t_env **env, char *path, int check)
 {
 	if ((sct->status = chdir(path)) == -1)
 	{
@@ -40,40 +42,44 @@ void	ms_cd_end(m_sct *sct, m_env **env, char *path, int check)
 		ft_printf("%s\n", path);
 	ms_modify_env(env, "OLDPWD", ms_search_env("PWD", env));
 	free(path);
-	if (!(path = malloc(PATH_MAX * sizeof(char))))
+	if (!(path = malloc(1024 * sizeof(char))))
 		return ;
-	getcwd(path, PATH_MAX);
+	getcwd(path, 1024);
 	ms_modify_env(env, "PWD", path);
 	sct->status = 0;
 }
 
-void	ms_cd(m_sct *sct, m_env **env)
+int		ms_cd_util(t_sct *sct, char **path)
 {
-    char	*path;
-    int		check;
+	if (!(*path = malloc(1024 * sizeof(char))))
+		return (FALSE);
+	getcwd(*path, 1024);
+	*path = ft_strjoin_free(*path, "/", 1);
+	*path = ft_strjoin_free(*path, sct->args[1], 1);
+	return (TRUE);
+}
+
+void	ms_cd(t_sct *sct, t_env **env)
+{
+	char	*path;
+	int		check;
 
 	check = FALSE;
 	path = 0;
-	if (!sct->args[1] || !strncmp(sct->args[1], "~", 2))
+	if (!sct->args[1] || !strncmp(sct->args[1], "~", 1))
 	{
-		if (!ms_set_path(sct, env, path, "HOME"))
+		if (!ms_set_path(sct, env, &path, "HOME"))
 			return ;
 	}
 	else if (sct->args[1][0] == '/')
 		path = ft_strdup(sct->args[1]);
 	else if (!strncmp(sct->args[1], "-", 2))
 	{
-		if (!ms_set_path(sct, env, path, "OLDPWD"))
+		if (!ms_set_path(sct, env, &path, "OLDPWD"))
 			return ;
 		check = TRUE;
 	}
-	else
-	{
-		if (!(path = malloc(PATH_MAX * sizeof(char))))
-			return ;
-		getcwd(path, PATH_MAX);
-		path = ft_strjoin_free(path, "/", 1);
-		path = ft_strjoin_free(path, sct->args[1], 1);
-	}
-    ms_cd_end(sct, env, path, check);
+	else if (!ms_cd_util(sct, &path))
+		return ;
+	ms_cd_end(sct, env, path, check);
 }

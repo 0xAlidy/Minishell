@@ -6,15 +6,15 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 16:51:01 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/26 17:05:52 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/27 15:16:17 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-void		ms_add_command(m_cmd **commands, m_cmd *command)
+void		ms_add_command(t_cmd **commands, t_cmd *command)
 {
-	m_cmd *temp;
+	t_cmd *temp;
 
 	temp = *commands;
 	if (!*commands)
@@ -27,10 +27,10 @@ void		ms_add_command(m_cmd **commands, m_cmd *command)
 	}
 }
 
-void		ms_add_output(char *output, int type, m_output **lst)
+void		ms_add_output(char *output, int type, t_output **lst)
 {
-	m_output *new;
-	m_output *temp;
+	t_output *new;
+	t_output *temp;
 
 	new = ms_new_output(output, type);
 	temp = *lst;
@@ -44,10 +44,10 @@ void		ms_add_output(char *output, int type, m_output **lst)
 	}
 }
 
-void		ms_add_arg(char *content, m_arg **lst)
+void		ms_add_arg(char *content, t_arg **lst)
 {
-	m_arg *new;
-	m_arg *temp;
+	t_arg *new;
+	t_arg *temp;
 
 	new = ms_new_arg(content);
 	temp = *lst;
@@ -61,7 +61,7 @@ void		ms_add_arg(char *content, m_arg **lst)
 	}
 }
 
-int			ms_check_end(m_parse *parse, char *line, int i)
+int			ms_check_end(t_parse *parse, char *line, int i)
 {
 	char save;
 
@@ -80,4 +80,4 @@ int			ms_check_end(m_parse *parse, char *line, int i)
 	if (save == '|')
 		return (ms_free_parse(-1, "|", parse));
 	return (ms_free_parse(-1, ";", parse));
-}	
+}
