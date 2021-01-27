@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 09:54:32 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/22 11:43:07 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/27 15:57:36 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ char				*ft_strnstr(const char *dest, const char *src, size_t len);
 char				*ft_strrchr(const char *s, int c);
 char				*ft_strtrim(char const *s1, char const *set);
 char				*ft_substr(char const *s, unsigned int start, size_t len);
-char    			*ft_replace(char *str, char *remove, char *replace, int free);
+char				*ft_replace(char *str, char *rem, char *replace, int free);
 void				ft_strfree(char *s1, char *s2, int fr);
 void				ft_write_flags(int zero, int c, int flag, int nb);
 void				ft_write_justify_flags

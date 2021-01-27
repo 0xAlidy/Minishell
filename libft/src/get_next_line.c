@@ -6,7 +6,7 @@
 /*   By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/21 16:14:28 by alidy             #+#    #+#             */
-/*   Updated: 2021/01/22 11:28:26 by alidy            ###   ########lyon.fr   */
+/*   Updated: 2021/01/27 16:00:11 by alidy            ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,6 @@ char	*ft_gnl_strdup(char *s1)
 		i++;
 	if (!(s2 = (char *)malloc(sizeof(char) * (i + 1))))
 		return (0);
-	
 	s2[i] = 0;
 	i = 0;
 	while (s1[i] && s1[i] != '\n')

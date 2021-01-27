@@ -6,7 +6,7 @@
 #    By: alidy <alidy@student.42lyon.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/02 17:12:28 by alidy             #+#    #+#              #
-#    Updated: 2021/01/27 15:19:39 by alidy            ###   ########lyon.fr    #
+#    Updated: 2021/01/27 15:38:32 by alidy            ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,6 @@ LIBS			=		libft/libft.a
 SRC_PATH		=		srcs
 
 SRCS_NAME		=		minishell.c 				\
-						ms_debug.c 					\
 						parsing/ms_parsing.c 		\
 						parsing/ms_parsing_2.c 		\
 						parsing/ms_parse_init.c		\
@@ -42,8 +41,6 @@ SRCS_NAME		=		minishell.c 				\
 						exec/ms_redirections.c 		\
 						exec/ms_exec_utils.c 		\
 						exec/ms_exec_pipe.c 		\
-						
-#enlever debug
 						
 OBJS			=		${SRCS:.c=.o}
 
