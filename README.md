@@ -1,4 +1,4 @@
 # minishell
-L’objectif de ce projet est de créer un shell minimaliste.
-- Ça sera votre petit bash à vous.
-- Vous en apprendrez beaucoup sur les processus et les descripteurs de fichier
+This project is about creating a simple shell.
+- Yes, your own little bash.
+- You will learn a lot about processes and file descriptors.
